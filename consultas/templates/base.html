@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+      <!--=============== REMIXICONS ===============-->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.4.0/remixicon.css" crossorigin="">
+      {% load static %}
+      <!--=============== CSS ===============-->
+      <link rel="stylesheet" href="{% static 'css/style.css' %}">
+      <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
+
+      <script src="https://cdn.tailwindcss.com"></script>
+      
+      <!--=============== JS===============-->
+
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+     
+
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="icon" href="{% static 'img/logo.ico' %}" type="image/x-icon">
+
+   </head>
+   <body>
+    <div class="flex min-h-screen w-full">
+      {% if user.is_authenticated %}
+      <aside class="hidden w-64 flex-col border-r bg-[#0f172a] p-4 md:flex">
+        <div class="flex items-center gap-2">
+          <a class="flex items-center gap-2 text-lg font-semibold text-[#CCFFFF]" href="#">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="w-6 h-6 text-[#CCFFFF]"
+            >
+              <path d="m8 3 4 8 5-5 5 15H2L8 3z"></path>
+            </svg>
+            <span class="sr-only">Acme Inc</span>
+          </a>
+        </div>
+        <nav class="mt-8 flex flex-col gap-2">
+          {% if user.perfilusuario.tipo_usuario == 'caja' or user.perfilusuario.tipo_usuario == 'gerente' or user.perfilusuario.tipo_usuario == 'administrador' %}
+            <a href="{% url 'menu' %}" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#CCFFFF] hover:bg-[#0e3a51]">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="w-5 h-5 text-[#CCFFFF]"
+              >
+                <rect width="7" height="9" x="3" y="3" rx="1"></rect>
+                <rect width="7" height="5" x="14" y="3" rx="1"></rect>
+                <rect width="7" height="9" x="14" y="12" rx="1"></rect>
+                <rect width="7" height="5" x="3" y="16" rx="1"></rect>
+              </svg>
+              Menú
+            </a>
+            <a href="{% url 'salesForm' %}" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#CCFFFF] hover:bg-[#0e3a51]">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="w-5 h-5 text-[#CCFFFF]"
+              >
+                <rect width="20" height="12" x="2" y="6" rx="2"></rect>
+                <circle cx="12" cy="12" r="2"></circle>
+                <path d="M6 12h.01M18 12h.01"></path>
+              </svg>
+              Caja
+            </a>
+            <a href="{% url 'clients' %}" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#CCFFFF] hover:bg-[#0e3a51]">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="w-5 h-5 text-[#CCFFFF]"
+              >
+                <rect width="20" height="8" x="2" y="2" rx="2" ry="2"></rect>
+                <rect width="20" height="8" x="2" y="14" rx="2" ry="2"></rect>
+                <line x1="6" x2="6.01" y1="6" y2="6"></line>
+                <line x1="6" x2="6.01" y1="18" y2="18"></line>
+              </svg>
+              Clientes
+            </a>
+            <a href="{% url 'credito_list' %}" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#CCFFFF] hover:bg-[#0e3a51]">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="w-5 h-5 text-[#CCFFFF]"
+              >
+                <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+                <line x1="2" x2="22" y1="10" y2="10"></line>
+              </svg>
+              Pagos crédito 
+            </a>
+          {% endif %}
+    
+          {% if user.perfilusuario.tipo_usuario == 'gerente' or user.perfilusuario.tipo_usuario == 'administrador' %}
+            <a href="{% url 'categories' %}" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#CCFFFF] hover:bg-[#0e3a51]">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="w-5 h-5 text-[#CCFFFF]"
+              >
+                <path d="m7.5 4.27 9 5.15"></path>
+                <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
+                <path d="m3.3 7 8.7 5 8.7-5"></path>
+                <path d="M12 22V12"></path>
+              </svg>
+              Categorías
+            </a>
+            <a href="{% url 'products' %}" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#CCFFFF] hover:bg-[#0e3a51]">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="w-5 h-5 text-[#CCFFFF]"
+              >
+                <path d="m7.5 4.27 9 5.15"></path>
+                <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
+                <path d="m3.3 7 8.7 5 8.7-5"></path>
+                <path d="M12 22V12"></path>
+              </svg>
+              Productos
+            </a>
+            <a href="{% url 'sales' %}" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#CCFFFF] hover:bg-[#0e3a51]">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="w-5 h-5 text-[#CCFFFF]"
+              >
+                <line x1="12" x2="12" y1="2" y2="22"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+              Ventas
+            </a>
+          {% endif %}
+    
+          {% if user.perfilusuario.tipo_usuario == 'administrador' %}
+            <a href="{% url 'users' %}" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#CCFFFF] hover:bg-[#0e3a51]">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="w-5 h-5 text-[#CCFFFF]"
+              >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              Usuarios
+            </a>
+          {% endif %}
+        </nav>
+      </aside>
+    {% endif %}
+        <div class="flex flex-1 flex-col bg-[#0f172a] text-[#CCFFFF]">
+          <header class="bg-[#0f172a] border-b flex items-center h-16 px-4 sm:px-6">
+            <a class="flex items-center gap-2 text-lg font-semibold text-[#c4d9e4]" href="#">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="w-6 h-6 text-[#c4d9e4]"
+              >
+                <path d="m8 3 4 8 5-5 5 15H2L8 3z"></path>
+              </svg>
+              <span class="sr-only">Acme Inc</span>
+            </a>
+            <nav class="ml-auto hidden gap-6 text-sm font-medium text-[#c4d9e4] md:flex">
+                <form action="{% url 'logout' %}" method="post" class="flex items-center space-x-2">
+                    {% csrf_token %}
+                    <button type="submit" class="flex items-center space-x-2 hover:underline underline-offset-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);">
+                            <path d="M16 13v-2H7V8l-5 4 5 4v-3z"></path>
+                            <path d="M20 3h-9c-1.103 0-2 .897-2 2v4h2V5h9v14h-9v-4H9v4c0 1.103.897 2 2 2h9c1.103 0 2-.897 2-2V5c0-1.103-.897-2-2-2z"></path>
+                        </svg>
+                        <span>Cerrar Sesión</span>
+                    </button>
+                </form>
+              
+            </nav>
+          </header>
+          <main class="flex-1 bg-[#0f172a] p-6">
+            {% block content %}
+             
+             {% endblock %}
+          </main>
+        </div>
+      </div>
+      
+     
+
+   </body>
+   <script src="{% static 'js/main.js' %}"></script>
+  
+</html>

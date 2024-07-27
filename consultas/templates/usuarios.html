@@ -1,0 +1,413 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Usuarios
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-4 bg-[#0f172a] text-[#CCFFFF] ">
+  <div class="flex items-center justify-between">
+      <h1 class="text-2xl font-bold">Usuarios</h1>
+      <button id = 'openModalCrear'class="bg-[#0369a1] text-[#CCFFFF] font-semibold py-2 px-4 rounded hover:bg-[#0284c7] transition-colors">
+          Crear Usuario
+      </button>
+  </div>
+  <div class="flex items-center gap-2">
+      <input
+          class="flex h-10 rounded-md border border-[#1e293b] bg-[#1e293b] px-3 py-2 text-sm text-[#CCFFFF] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent w-full max-w-md"
+          placeholder="Buscar usuarios..."
+          type="search"
+          id="searchInput"
+      />
+  </div>
+  <div class="overflow-auto border border-[#1e293b] rounded-lg">
+      <table class="w-full caption-bottom text-sm">
+          <thead class="bg-[#1e293b]">
+              <tr>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-gray-400 cursor-pointer">Nombre<span class="ml-1">↑</span></th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-gray-400 cursor-pointer">Nombre de Usuario</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-gray-400 cursor-pointer">Role</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-gray-400">Acciones</th>
+              </tr>
+          </thead>
+          <tbody id="userTableBody">
+              {% for user_info in user_data %}
+              <tr class="border-b border-[#1e293b] hover:bg-[#1e293b] transition-colors">
+                  <td class="p-4 align-middle font-medium">{{ user_info.name }}</td>
+                  <td class="p-4 align-middle">{{ user_info.username }}</td>
+                  <td class="p-4 align-middle">{{ user_info.user_type }}</td>
+                  <td class="p-4 align-middle">
+                      <div class="flex items-center gap-2">
+                          <button onclick="editar({{user_info.id}},'{{ user_info.name }}','{{ user_info.username }}', '{{ user_info.user_type }}', '{{ user_info.password}}' )" class="border border-[#3f3f46] text-[#CCFFFF] py-1 px-3 rounded text-sm hover:bg-[#3f3f46] transition-colors">
+                              Editar
+                          </button>
+                          <button onclick = "eliminar({{user_info.id}})"class="border border-[#3f3f46] text-[#CCFFFF] py-1 px-3 rounded text-sm hover:bg-[#3f3f46] transition-colors">
+                              Eliminar
+                          </button>
+                      </div>
+                  </td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
+</div>
+
+<!-- =========================== MODALES ======================= -->
+<dialog id="userModalCrear" class="bg-[#1e293b] text-[#CCFFFF] rounded-lg p-6 w-full max-w-md">
+  <h2 class="text-xl font-bold mb-4">Crear un nuevo usuario</h2>
+  <form id="createUserForm" method="dialog" class="space-y-4">
+    {% csrf_token %}
+      <div>
+          <label for="name" class="block text-sm font-medium mb-1">Nombre</label>
+          <input type="text" id="name" name="nombre" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+      </div>
+      <div>
+          <label for="username" class="block text-sm font-medium mb-1">Nombre de Usuario</label>
+          <input type="text" id="username" name="username" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+      </div>
+      <div>
+          <label for="password" class="block text-sm font-medium mb-1">Contraseña</label>
+          <input type="password" id="password" name="password"  class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+      </div>
+      <div>
+          <label for="type" class="block text-sm font-medium mb-1">Tipo</label>
+          <select id="type" name="tipo" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+              <option value="caja">Caja</option>
+              <option value="gerente">Gerente</option>
+              <option value="administrador">Administrador</option>
+          </select>
+      </div>
+      <div class="flex justify-end space-x-2 mt-6">
+          <button type="button" id="cancelButton" class="border border-[#3f3f46] text-[#CCFFFF] py-2 px-4 rounded hover:bg-[#3f3f46] transition-colors">
+              Cancelar
+          </button>
+          <button type="submit" id="submitButton" class="bg-[#0369a1] text-[#CCFFFF] font-semibold py-2 px-4 rounded hover:bg-[#0284c7] transition-colors">
+              Crear
+          </button>
+      </div>
+  </form>
+</dialog>
+
+<!-- ================================================================================================================= 
+                                           EDITAR
+ =====================================================================================================================-->
+
+<dialog id="userModalEditar" class="bg-[#1e293b] text-[#CCFFFF] rounded-lg p-6 w-full max-w-md">
+  <h2 class="text-xl font-bold mb-4">Editar el usuario</h2>
+  <form id="editUserForm" method="post" class="space-y-4">
+    {% csrf_token %}
+      <div>
+          <input type="hidden" id="ide" value="">
+          <label for="name" class="block text-sm font-medium mb-1">Nombre</label>
+          <input type="text" id="namee" name="nombre" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+      </div>
+      <div>
+          <label for="username" class="block text-sm font-medium mb-1">Nombre de usuario</label>
+          <input type="text" id="usernamee" name="username" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+      </div>
+      <div>
+          <label for="password" class="block text-sm font-medium mb-1">Contraseña</label>
+          <input type="password" id="passworde" name="password" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+      </div>
+      <div>
+          <label for="type" class="block text-sm font-medium mb-1">Tipo</label>
+          <select id="typee" name="tipo" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+            <option value="caja">Caja</option>
+            <option value="gerente">Gerente</option>
+            <option value="administrador">Administrador</option>
+          </select>
+      </div>
+      <div class="flex justify-end space-x-2 mt-6">
+          <button type="button" id="cancelButtonEditar" class="border border-[#3f3f46] text-[#CCFFFF] py-2 px-4 rounded hover:bg-[#3f3f46] transition-colors">
+              Cancelar
+          </button>
+          <button type="submit" id="submitButtonEditar" class="bg-[#0369a1] text-[#CCFFFF] font-semibold py-2 px-4 rounded hover:bg-[#0284c7] transition-colors">
+              Editar
+          </button>
+      </div>
+  </form>
+</dialog>
+
+
+
+
+
+<!-- =========================== Form token ======================= -->
+
+<!-- =========================== Script ======================= -->
+
+<script>
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+const openModalButton = document.getElementById('openModalCrear');
+const modalCrear = document.getElementById('userModalCrear');
+const cancelButton = document.getElementById('cancelButton');
+const createUserForm = document.getElementById('createUserForm');
+const submitButton = document.getElementById('submitButton');
+let isSubmitting = false;
+const modalEditar = document.getElementById('userModalEditar');
+const cancelButtonEditar = document.getElementById('cancelButtonEditar');
+const editUserForm = document.getElementById('editUserForm');
+
+
+openModalButton.addEventListener('click', () => {
+  modalCrear.showModal();
+});
+
+cancelButton.addEventListener('click', () => {
+  modalCrear.close();
+});
+
+modalCrear.addEventListener('click', (e) => {
+  const dialogDimensions = modalCrear.getBoundingClientRect()
+  if (
+      e.clientX < dialogDimensions.left ||
+      e.clientX > dialogDimensions.right ||
+      e.clientY < dialogDimensions.top ||
+      e.clientY > dialogDimensions.bottom
+  ) {
+    modalCrear.close()
+  }
+})
+
+
+createUserForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  modalCrear.close()
+  if (isSubmitting) {
+    return; 
+    }
+        isSubmitting = true;
+        submitButton.disabled = true;
+        submitButton.textContent = 'Creating...';
+  // Mostrar Sweet Alert
+  Swal.fire({
+      title: 'Creating user...',
+      text: 'Please wait',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      allowEnterKey: false,
+      showConfirmButton: false,
+      didOpen: () => {
+          Swal.showLoading();
+      }
+  });
+
+  // Obtener los datos del formulario
+  const formData = new FormData(createUserForm);
+
+  try {
+      // Realizar el fetch POST
+      const response = await fetch('../alumno/api/v0/1/', {
+          method: 'POST',
+          body: formData
+      });
+
+      if (response.ok) {
+          // Si la respuesta es exitosa
+          Swal.fire({
+              icon: 'success',
+              title: 'User created successfully!',
+              showConfirmButton: false,
+              timer: 1500
+          });
+          
+          createUserForm.reset();
+      } else {
+          // Si hay un error en la respuesta
+          throw new Error('Server responded with an error');
+      }
+  } catch (error) {
+      console.error('Error:', error);
+      Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Something went wrong!',
+      });
+  }finally {
+    isSubmitting = false;
+    submitButton.disabled = false;
+    submitButton.textContent = 'Create';
+    location.reload();
+}
+});
+///////////////////////////// EDITAR/////////////////////////////////////////////////A
+//En este caso editar no necesita el listener del open porque ya lo hago en el onclik
+cancelButtonEditar.addEventListener('click', () => {
+  modalEditar.close();
+});
+
+modalEditar.addEventListener('click', (e) => {
+  const dialogDimensions = modalEditar.getBoundingClientRect()
+  if (
+      e.clientX < dialogDimensions.left ||
+      e.clientX > dialogDimensions.right ||
+      e.clientY < dialogDimensions.top ||
+      e.clientY > dialogDimensions.bottom
+  ) {
+    modalEditar.close()
+  }
+})
+editUserForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const inputid = document.getElementById('ide');
+  const id = inputid.value;
+  modalEditar.close()
+  if (isSubmitting) {
+    return; 
+    }
+        isSubmitting = true;
+        submitButton.disabled = true;
+        submitButton.textContent = 'Editing...';
+  // Mostrar Sweet Alert
+  Swal.fire({
+      title: 'Editing user...',
+      text: 'Please wait',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      allowEnterKey: false,
+      showConfirmButton: false,
+      didOpen: () => {
+          Swal.showLoading();
+      }
+  });
+
+  // Obtener los datos del formulario
+  const formData = new FormData(editUserForm);
+  const data = Object.fromEntries(formData);
+  try {
+      // Realizar el fetch PUT
+      const response = await fetch(`../alumno/api/v0/${id}/`, {
+          method: 'PUT',
+          body: JSON.stringify(data),
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+          },
+      });
+
+      if (response.ok) {
+          // Si la respuesta es exitosa
+          Swal.fire({
+              icon: 'success',
+              title: 'User edited successfully!',
+              showConfirmButton: false,
+              timer: 1500
+          });
+          
+          editUserForm.reset();
+      } else {
+          // Si hay un error en la respuesta
+          throw new Error('Server responded with an error');
+      }
+  } catch (error) {
+      console.error('Error:', error);
+      Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Something went wrong!',
+      });
+  }finally {
+    isSubmitting = false;
+    submitButton.disabled = false;
+    submitButton.textContent = 'edit';
+    location.reload();
+}
+});
+
+
+
+
+
+
+function eliminar(id) {
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+  // Mostrar una alerta de confirmación antes de eliminar
+  Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará al usuario del sistema. ¿Deseas continuar?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+  }).then((result) => {
+      if (result.isConfirmed) {
+          // Muestra un mensaje "Eliminando..."
+          const loadingAlert = Swal.fire({
+              title: 'Eliminando...',
+              icon: 'info',
+              showConfirmButton: false,
+              allowOutsideClick: false // Evita que el usuario cierre el cuadro de diálogo
+          });
+
+          // Realiza la solicitud de eliminación
+          fetch(`../alumno/api/v0/${id}/`, {
+              method: 'DELETE',
+              headers: {
+                'X-CSRFToken': csrfToken,
+              },
+              
+            })
+          .then(response => {
+              if (response.ok) {
+                  // Redirige a la página 'lista' (ajusta la URL según tu configuración)
+                  location.reload();
+              } else {
+                  console.error('Error al eliminar al ususario');
+              }
+          })
+          .catch(error => {
+              console.error('Error en la solicitud:', error);
+          })
+          .finally(() => {
+              // Cierra el cuadro de diálogo de carga
+              loadingAlert.close();
+          });
+      }
+  });
+}
+
+function editar(id, nombre, username, tipo ,password ){
+  modalEditar.showModal();
+   inputnombre = document.getElementById('namee');
+   inputid = document.getElementById('ide');
+   inputusername = document.getElementById('usernamee'); 
+   inputpassword = document.getElementById('passworde');
+   inputtype = document.getElementById('typee');
+   inputnombre.value = nombre;
+   inputusername.value = username;
+   inputpassword.value = password;
+   inputtype.value = tipo;
+   inputid.value = id;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                            BUSCARRRR 
+////////////////////////////////////////////////////////////////////////////////////////////////
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('searchInput');
+  const userTableBody = document.getElementById('userTableBody');
+  const rows = userTableBody.getElementsByTagName('tr');
+
+  searchInput.addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase();
+
+      for (let row of rows) {
+          const name = row.getElementsByTagName('td')[0].textContent.toLowerCase();
+          const username = row.getElementsByTagName('td')[1].textContent.toLowerCase();
+          const role = row.getElementsByTagName('td')[2].textContent.toLowerCase();
+
+          if (name.includes(searchTerm) || username.includes(searchTerm) || role.includes(searchTerm)) {
+              row.style.display = '';
+          } else {
+              row.style.display = 'none';
+          }
+      }
+  });
+});
+
+</script>
+{% endblock %}
