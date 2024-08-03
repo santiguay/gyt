@@ -24,7 +24,7 @@
    </head>
    <body>
     <div class="flex min-h-screen w-full">
-      {% if user.is_authenticated %}
+      
       <aside class="hidden w-64 flex-col border-r bg-[#0f172a] p-4 md:flex">
         <div class="flex items-center gap-2">
           <a class="flex items-center gap-2 text-lg font-semibold text-[#CCFFFF]" href="#">
@@ -46,8 +46,8 @@
           </a>
         </div>
         <nav class="mt-8 flex flex-col gap-2">
-          {% if user.perfilusuario.tipo_usuario == 'caja' or user.perfilusuario.tipo_usuario == 'gerente' or user.perfilusuario.tipo_usuario == 'administrador' %}
-            <a href="{% url 'menu' %}" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#CCFFFF] hover:bg-[#0e3a51]">
+         
+            <a href="{% url 'consultas' %}" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#CCFFFF] hover:bg-[#0e3a51]">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -67,127 +67,31 @@
               </svg>
               Menú
             </a>
-            <a href="{% url 'salesForm' %}" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#CCFFFF] hover:bg-[#0e3a51]">
+            <a href="{% url 'consultas' %}" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#CCFFFF] hover:bg-[#0e3a51]">
               <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="w-5 h-5 text-[#CCFFFF]"
-              >
-                <rect width="20" height="12" x="2" y="6" rx="2"></rect>
-                <circle cx="12" cy="12" r="2"></circle>
-                <path d="M6 12h.01M18 12h.01"></path>
-              </svg>
-              Caja
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="h-4 w-4 transition-all group-hover:scale-110"
+        >
+          <path d="M12 6v4"></path>
+          <path d="M14 14h-4"></path>
+          <path d="M14 18h-4"></path>
+          <path d="M14 8h-4"></path>
+          <path d="M18 12h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h2"></path>
+          <path d="M18 22V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v18"></path>
+        </svg>
+              Consultas
             </a>
-            <a href="{% url 'clients' %}" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#CCFFFF] hover:bg-[#0e3a51]">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="w-5 h-5 text-[#CCFFFF]"
-              >
-                <rect width="20" height="8" x="2" y="2" rx="2" ry="2"></rect>
-                <rect width="20" height="8" x="2" y="14" rx="2" ry="2"></rect>
-                <line x1="6" x2="6.01" y1="6" y2="6"></line>
-                <line x1="6" x2="6.01" y1="18" y2="18"></line>
-              </svg>
-              Clientes
-            </a>
-            <a href="{% url 'credito_list' %}" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#CCFFFF] hover:bg-[#0e3a51]">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="w-5 h-5 text-[#CCFFFF]"
-              >
-                <rect width="20" height="14" x="2" y="5" rx="2"></rect>
-                <line x1="2" x2="22" y1="10" y2="10"></line>
-              </svg>
-              Pagos crédito 
-            </a>
-          {% endif %}
+            
     
-          {% if user.perfilusuario.tipo_usuario == 'gerente' or user.perfilusuario.tipo_usuario == 'administrador' %}
-            <a href="{% url 'categories' %}" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#CCFFFF] hover:bg-[#0e3a51]">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="w-5 h-5 text-[#CCFFFF]"
-              >
-                <path d="m7.5 4.27 9 5.15"></path>
-                <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
-                <path d="m3.3 7 8.7 5 8.7-5"></path>
-                <path d="M12 22V12"></path>
-              </svg>
-              Categorías
-            </a>
-            <a href="{% url 'products' %}" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#CCFFFF] hover:bg-[#0e3a51]">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="w-5 h-5 text-[#CCFFFF]"
-              >
-                <path d="m7.5 4.27 9 5.15"></path>
-                <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
-                <path d="m3.3 7 8.7 5 8.7-5"></path>
-                <path d="M12 22V12"></path>
-              </svg>
-              Productos
-            </a>
-            <a href="{% url 'sales' %}" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#CCFFFF] hover:bg-[#0e3a51]">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="w-5 h-5 text-[#CCFFFF]"
-              >
-                <line x1="12" x2="12" y1="2" y2="22"></line>
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-              </svg>
-              Ventas
-            </a>
-          {% endif %}
-    
-          {% if user.perfilusuario.tipo_usuario == 'administrador' %}
+          
             <a href="{% url 'users' %}" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-[#CCFFFF] hover:bg-[#0e3a51]">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -208,10 +112,10 @@
               </svg>
               Usuarios
             </a>
-          {% endif %}
+          
         </nav>
       </aside>
-    {% endif %}
+    
         <div class="flex flex-1 flex-col bg-[#0f172a] text-[#CCFFFF]">
           <header class="bg-[#0f172a] border-b flex items-center h-16 px-4 sm:px-6">
             <a class="flex items-center gap-2 text-lg font-semibold text-[#c4d9e4]" href="#">

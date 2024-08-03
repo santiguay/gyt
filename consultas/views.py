@@ -36,6 +36,6 @@ def users(request):
 
     return render(request, 'usuarios.html', {'user_data': user_data})
  
-
-def cosultas(request):
+@login_required
+def consultas(request):
     return render(request, 'consultas.html')

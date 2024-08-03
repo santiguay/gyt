@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Consultas
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-4 bg-[#0f172a] text-[#CCFFFF]">
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold">Consultas</h1>
+        <button id="openModalCrear" class="bg-[#0369a1] text-[#CCFFFF] font-semibold py-2 px-4 rounded hover:bg-[#0284c7] transition-colors">
+            Crear Consulta
+        </button>
+    </div>
+    <div class="flex items-center gap-2">
+        <input
+            class="flex h-10 rounded-md border border-[#1e293b] bg-[#1e293b] px-3 py-2 text-sm text-[#CCFFFF] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent w-full max-w-md"
+            placeholder="Buscar consultas..."
+            type="search"
+            id="searchInput"
+        />
+    </div>
+    <div class="overflow-auto border border-[#1e293b] rounded-lg">
+        <table class="w-full caption-bottom text-sm">
+            <thead class="bg-[#1e293b]">
+                <tr>
+                    <th class="h-12 px-4 text-left align-middle font-medium text-gray-400">Paciente</th>
+                    <th class="h-12 px-4 text-left align-middle font-medium text-gray-400">Médico</th>
+                    <th class="h-12 px-4 text-left align-middle font-medium text-gray-400">Fecha</th>
+                    <th class="h-12 px-4 text-left align-middle font-medium text-gray-400">Motivo</th>
+                    <th class="h-12 px-4 text-left align-middle font-medium text-gray-400">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="consultaTableBody">
+                <!-- Las consultas se cargarán aquí dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para crear consulta -->
+<dialog id="consultaModalCrear" class="bg-[#1e293b] text-[#CCFFFF] rounded-lg p-6 w-full max-w-md">
+    <h2 class="text-xl font-bold mb-4">Crear nueva consulta</h2>
+    <form id="createConsultaForm" method="dialog" class="space-y-4">
+        {% csrf_token %}
+        <div>
+            <label for="paciente" class="block text-sm font-medium mb-1">Paciente</label>
+            <select id="paciente" name="paciente_id" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+                <!-- Opciones de pacientes se cargarán dinámicamente -->
+            </select>
+        </div>
+        <div>
+            <label for="medico" class="block text-sm font-medium mb-1">Médico</label>
+            <select id="medico" name="medico_id" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+                <!-- Opciones de médicos se cargarán dinámicamente -->
+            </select>
+        </div>
+        <div>
+            <label for="motivo" class="block text-sm font-medium mb-1">Motivo</label>
+            <input type="text" id="motivo" name="motivo" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+        </div>
+        <div>
+            <label for="diagnostico" class="block text-sm font-medium mb-1">Diagnóstico</label>
+            <textarea id="diagnostico" name="diagnostico" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent"></textarea>
+        </div>
+        <div>
+            <label for="tratamiento" class="block text-sm font-medium mb-1">Tratamiento</label>
+            <textarea id="tratamiento" name="tratamiento" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent"></textarea>
+        </div>
+        <div class="flex justify-end space-x-2 mt-6">
+            <button type="button" id="cancelButton" class="border border-[#3f3f46] text-[#CCFFFF] py-2 px-4 rounded hover:bg-[#3f3f46] transition-colors">
+                Cancelar
+            </button>
+            <button type="submit" id="submitButton" class="bg-[#0369a1] text-[#CCFFFF] font-semibold py-2 px-4 rounded hover:bg-[#0284c7] transition-colors">
+                Crear
+            </button>
+        </div>
+    </form>
+</dialog>
+
+<!-- Modal para editar consulta -->
+<dialog id="consultaModalEditar" class="bg-[#1e293b] text-[#CCFFFF] rounded-lg p-6 w-full max-w-md">
+    <h2 class="text-xl font-bold mb-4">Editar consulta</h2>
+    <form id="editConsultaForm" method="dialog" class="space-y-4">
+        {% csrf_token %}
+        <input type="hidden" id="consultaId" name="consultaId">
+        <div>
+            <label for="editMotivo" class="block text-sm font-medium mb-1">Motivo</label>
+            <input type="text" id="editMotivo" name="motivo" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+        </div>
+        <div>
+            <label for="editDiagnostico" class="block text-sm font-medium mb-1">Diagnóstico</label>
+            <textarea id="editDiagnostico" name="diagnostico" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent"></textarea>
+        </div>
+        <div>
+            <label for="editTratamiento" class="block text-sm font-medium mb-1">Tratamiento</label>
+            <textarea id="editTratamiento" name="tratamiento" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent"></textarea>
+        </div>
+        <div class="flex justify-end space-x-2 mt-6">
+            <button type="button" id="cancelButtonEditar" class="border border-[#3f3f46] text-[#CCFFFF] py-2 px-4 rounded hover:bg-[#3f3f46] transition-colors">
+                Cancelar
+            </button>
+            <button type="submit" id="submitButtonEditar" class="bg-[#0369a1] text-[#CCFFFF] font-semibold py-2 px-4 rounded hover:bg-[#0284c7] transition-colors">
+                Actualizar
+            </button>
+        </div>
+    </form>
+</dialog>
+
+<script>
+
+</script>
+{% endblock %}

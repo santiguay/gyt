@@ -6,6 +6,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 import json
 import logging
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from .models import Consulta, PerfilUsuario
+
 
 logger = logging.getLogger(__name__)
 
@@ -95,274 +99,57 @@ class UsuarioApi(View):
         except PerfilUsuario.DoesNotExist:
             return JsonResponse({'error': 'Perfil de usuario no encontrado.'}, status=404)  
 
-
-class HistoriaClinicaApi(View):
-    def get(self, request, id=None):
-        if id:
-            try:
-                historia = HistoriaClinica.objects.get(id=id)
-                data = self.serialize_historia(historia)
-                return JsonResponse(data)
-            except ObjectDoesNotExist:
-                return JsonResponse({'error': 'Historia clínica no encontrada.'}, status=404)
-        else:
-            historias = HistoriaClinica.objects.all()
-            data = [self.serialize_historia(historia) for historia in historias]
-            return JsonResponse({'historias': data})
+class ConsultaApi(View):
+    def get(self, request):
+        consultas = Consulta.objects.all()
+        consulta_data = []
+        for consulta in consultas:
+            consulta_data.append({
+                'id': consulta.id,
+                'paciente': consulta.paciente.usuario.get_full_name(),
+                'medico': consulta.medico.usuario.get_full_name(),
+                'fecha': consulta.fecha.strftime("%Y-%m-%d %H:%M:%S"),
+                'motivo': consulta.motivo,
+                'diagnostico': consulta.diagnostico,
+                'tratamiento': consulta.tratamiento,
+            })
+        return JsonResponse({'consultas': consulta_data})
 
     def post(self, request):
-        try:
-            data = json.loads(request.body)
-            historia = HistoriaClinica.objects.create(
-                prontuario=data['prontuario'],
-                jefe_familia=data['jefe_familia'],
-                nombre_apellidos=data['nombre_apellidos'],
-                fecha_nacido=data['fecha_nacido'],
-                sexo=data['sexo'],
-                documento=data['documento'],
-                domicilio=data['domicilio'],
-                telefono=data['telefono'],
-                estado_civil=data['estado_civil']
+        data = json.loads(request.body)
+        paciente_id = data.get('paciente_id')
+        medico_id = data.get('medico_id')
+        motivo = data.get('motivo')
+        diagnostico = data.get('diagnostico')
+        tratamiento = data.get('tratamiento')
+
+        if paciente_id and medico_id and motivo and diagnostico and tratamiento:
+            paciente = PerfilUsuario.objects.get(id=paciente_id)
+            medico = PerfilUsuario.objects.get(id=medico_id)
+            consulta = Consulta.objects.create(
+                paciente=paciente,
+                medico=medico,
+                motivo=motivo,
+                diagnostico=diagnostico,
+                tratamiento=tratamiento
             )
-            return JsonResponse({'message': 'Historia clínica creada exitosamente.', 'id': historia.id})
-        except KeyError as e:
-            return JsonResponse({'error': f'Falta el campo obligatorio: {str(e)}'}, status=400)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'JSON inválido en el cuerpo de la solicitud.'}, status=400)
+            return JsonResponse({'message': 'Consulta creada exitosamente.', 'id': consulta.id})
+        else:
+            return JsonResponse({'error': 'Faltan datos obligatorios en la solicitud.'}, status=400)
 
     def put(self, request, id):
         try:
-            historia = HistoriaClinica.objects.get(id=id)
+            consulta = Consulta.objects.get(id=id)
             data = json.loads(request.body)
             
-            for field, value in data.items():
-                setattr(historia, field, value)
+            if 'motivo' in data:
+                consulta.motivo = data['motivo']
+            if 'diagnostico' in data:
+                consulta.diagnostico = data['diagnostico']
+            if 'tratamiento' in data:
+                consulta.tratamiento = data['tratamiento']
             
-            historia.save()
-            return JsonResponse({'message': 'Historia clínica actualizada exitosamente.'})
-        except ObjectDoesNotExist:
-            return JsonResponse({'error': 'Historia clínica no encontrada.'}, status=404)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'JSON inválido en el cuerpo de la solicitud.'}, status=400)
-
-    def delete(self, request, id):
-        try:
-            historia = HistoriaClinica.objects.get(id=id)
-            historia.delete()
-            return JsonResponse({'message': 'Historia clínica eliminada exitosamente.'})
-        except ObjectDoesNotExist:
-            return JsonResponse({'error': 'Historia clínica no encontrada.'}, status=404)
-
-    def serialize_historia(self, historia):
-        return {
-            'id': historia.id,
-            'prontuario': historia.prontuario,
-            'jefe_familia': historia.jefe_familia,
-            'nombre_apellidos': historia.nombre_apellidos,
-            'fecha_nacido': historia.fecha_nacido.isoformat(),
-            'sexo': historia.sexo,
-            'documento': historia.documento,
-            'domicilio': historia.domicilio,
-            'telefono': historia.telefono,
-            'estado_civil': historia.estado_civil
-        }
-
-class SignosVitalesApi(View):
-    def get(self, request, historia_id):
-        signos = SignosVitales.objects.filter(historia_clinica_id=historia_id).order_by('-fecha')
-        data = [{
-            'id': signo.id,
-            'fecha': signo.fecha.isoformat(),
-            'pulso': signo.pulso,
-            'presion_arterial': signo.presion_arterial,
-            'temperatura': signo.temperatura,
-            'frecuencia_respiratoria': signo.frecuencia_respiratoria,
-            'saturacion_oxigeno': signo.saturacion_oxigeno
-        } for signo in signos]
-        return JsonResponse({'signos_vitales': data})
-
-    def post(self, request, historia_id):
-        try:
-            data = json.loads(request.body)
-            signo = SignosVitales.objects.create(
-                historia_clinica_id=historia_id,
-                pulso=data['pulso'],
-                presion_arterial=data['presion_arterial'],
-                temperatura=data['temperatura'],
-                frecuencia_respiratoria=data['frecuencia_respiratoria'],
-                saturacion_oxigeno=data['saturacion_oxigeno']
-            )
-            return JsonResponse({'message': 'Signos vitales registrados exitosamente.', 'id': signo.id})
-        except KeyError as e:
-            return JsonResponse({'error': f'Falta el campo obligatorio: {str(e)}'}, status=400)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'JSON inválido en el cuerpo de la solicitud.'}, status=400)
-class DatosCorporalesApi(View):
-    def get(self, request, historia_id):
-        datos = DatosCorporales.objects.filter(historia_clinica_id=historia_id).order_by('-fecha')
-        data = [{
-            'id': dato.id,
-            'fecha': dato.fecha.isoformat(),
-            'peso': dato.peso,
-            'talla': dato.talla,
-            'imc': dato.imc,
-            'porcentaje_grasa_corporal': dato.porcentaje_grasa_corporal
-        } for dato in datos]
-        return JsonResponse({'datos_corporales': data})
-
-    def post(self, request, historia_id):
-        try:
-            data = json.loads(request.body)
-            dato = DatosCorporales.objects.create(
-                historia_clinica_id=historia_id,
-                peso=data['peso'],
-                talla=data['talla'],
-                imc=data['imc'],
-                porcentaje_grasa_corporal=data['porcentaje_grasa_corporal']
-            )
-            return JsonResponse({'message': 'Datos corporales registrados exitosamente.', 'id': dato.id})
-        except KeyError as e:
-            return JsonResponse({'error': f'Falta el campo obligatorio: {str(e)}'}, status=400)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'JSON inválido en el cuerpo de la solicitud.'}, status=400)
-
-class ProblemaCronicoApi(View):
-    def get(self, request, historia_id):
-        problemas = ProblemaCronico.objects.filter(historia_clinica_id=historia_id)
-        data = [{
-            'id': problema.id,
-            'descripcion': problema.descripcion,
-            'fecha_inicio': problema.fecha_inicio.isoformat(),
-            'fecha_control': problema.fecha_control.isoformat()
-        } for problema in problemas]
-        return JsonResponse({'problemas_cronicos': data})
-
-    def post(self, request, historia_id):
-        try:
-            data = json.loads(request.body)
-            problema = ProblemaCronico.objects.create(
-                historia_clinica_id=historia_id,
-                descripcion=data['descripcion'],
-                fecha_inicio=data['fecha_inicio'],
-                fecha_control=data['fecha_control']
-            )
-            return JsonResponse({'message': 'Problema crónico registrado exitosamente.', 'id': problema.id})
-        except KeyError as e:
-            return JsonResponse({'error': f'Falta el campo obligatorio: {str(e)}'}, status=400)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'JSON inválido en el cuerpo de la solicitud.'}, status=400)
-
-    def put(self, request, id):
-        try:
-            problema = ProblemaCronico.objects.get(id=id)
-            data = json.loads(request.body)
-            
-            for field, value in data.items():
-                setattr(problema, field, value)
-            
-            problema.save()
-            return JsonResponse({'message': 'Problema crónico actualizado exitosamente.'})
-        except ObjectDoesNotExist:
-            return JsonResponse({'error': 'Problema crónico no encontrado.'}, status=404)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'JSON inválido en el cuerpo de la solicitud.'}, status=400)
-
-    def delete(self, request, id):
-        try:
-            problema = ProblemaCronico.objects.get(id=id)
-            problema.delete()
-            return JsonResponse({'message': 'Problema crónico eliminado exitosamente.'})
-        except ObjectDoesNotExist:
-            return JsonResponse({'error': 'Problema crónico no encontrado.'}, status=404)
-
-class ProblemaTransitorioApi(View):
-    def get(self, request, historia_id):
-        problemas = ProblemaTransitorio.objects.filter(historia_clinica_id=historia_id)
-        data = [{
-            'id': problema.id,
-            'descripcion': problema.descripcion,
-            'fechas': problema.fechas
-        } for problema in problemas]
-        return JsonResponse({'problemas_transitorios': data})
-
-    def post(self, request, historia_id):
-        try:
-            data = json.loads(request.body)
-            problema = ProblemaTransitorio.objects.create(
-                historia_clinica_id=historia_id,
-                descripcion=data['descripcion'],
-                fechas=data['fechas']
-            )
-            return JsonResponse({'message': 'Problema transitorio registrado exitosamente.', 'id': problema.id})
-        except KeyError as e:
-            return JsonResponse({'error': f'Falta el campo obligatorio: {str(e)}'}, status=400)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'JSON inválido en el cuerpo de la solicitud.'}, status=400)
-
-    def put(self, request, id):
-        try:
-            problema = ProblemaTransitorio.objects.get(id=id)
-            data = json.loads(request.body)
-            
-            for field, value in data.items():
-                setattr(problema, field, value)
-            
-            problema.save()
-            return JsonResponse({'message': 'Problema transitorio actualizado exitosamente.'})
-        except ObjectDoesNotExist:
-            return JsonResponse({'error': 'Problema transitorio no encontrado.'}, status=404)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'JSON inválido en el cuerpo de la solicitud.'}, status=400)
-
-    def delete(self, request, id):
-        try:
-            problema = ProblemaTransitorio.objects.get(id=id)
-            problema.delete()
-            return JsonResponse({'message': 'Problema transitorio eliminado exitosamente.'})
-        except ObjectDoesNotExist:
-            return JsonResponse({'error': 'Problema transitorio no encontrado.'}, status=404)
-
-class NotaSOAPApi(View):
-    def get(self, request, historia_id):
-        notas = NotaSOAP.objects.filter(historia_clinica_id=historia_id).order_by('-fecha')
-        data = [{
-            'id': nota.id,
-            'fecha': nota.fecha.isoformat(),
-            'contenido': nota.contenido
-        } for nota in notas]
-        return JsonResponse({'notas_soap': data})
-
-    def post(self, request, historia_id):
-        try:
-            data = json.loads(request.body)
-            nota = NotaSOAP.objects.create(
-                historia_clinica_id=historia_id,
-                contenido=data['contenido']
-            )
-            return JsonResponse({'message': 'Nota SOAP registrada exitosamente.', 'id': nota.id})
-        except KeyError as e:
-            return JsonResponse({'error': f'Falta el campo obligatorio: {str(e)}'}, status=400)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'JSON inválido en el cuerpo de la solicitud.'}, status=400)
-
-    def put(self, request, id):
-        try:
-            nota = NotaSOAP.objects.get(id=id)
-            data = json.loads(request.body)
-            
-            nota.contenido = data['contenido']
-            nota.save()
-            
-            return JsonResponse({'message': 'Nota SOAP actualizada exitosamente.'})
-        except ObjectDoesNotExist:
-            return JsonResponse({'error': 'Nota SOAP no encontrada.'}, status=404)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'JSON inválido en el cuerpo de la solicitud.'}, status=400)
-
-    def delete(self, request, id):
-        try:
-            nota = NotaSOAP.objects.get(id=id)
-            nota.delete()
-            return JsonResponse({'message': 'Nota SOAP eliminada exitosamente.'})
-        except ObjectDoesNotExist:
-            return JsonResponse({'error': 'Nota SOAP no encontrada.'}, status=404)
+            consulta.save()
+            return JsonResponse({'message': 'Consulta actualizada exitosamente.'})
+        except Consulta.DoesNotExist:
+            return JsonResponse({'error': 'Consulta no encontrada.'}, status=404)
