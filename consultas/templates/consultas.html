@@ -1,21 +1,21 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Consultas
+Historia Clínica
 {% endblock %}
 
 {% block content %}
-<div class="flex flex-col gap-4 bg-[#0f172a] text-[#CCFFFF]">
+<div class="flex flex-col gap-4 bg-[#0f172a] text-[#CCFFFF] ">
     <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-bold">Consultas</h1>
+        <h1 class="text-2xl font-bold">Historia Clínica</h1>
         <button id="openModalCrear" class="bg-[#0369a1] text-[#CCFFFF] font-semibold py-2 px-4 rounded hover:bg-[#0284c7] transition-colors">
-            Crear Consulta
+            Crear Historia Clínica
         </button>
     </div>
     <div class="flex items-center gap-2">
         <input
             class="flex h-10 rounded-md border border-[#1e293b] bg-[#1e293b] px-3 py-2 text-sm text-[#CCFFFF] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent w-full max-w-md"
-            placeholder="Buscar consultas..."
+            placeholder="Buscar historia clínica..."
             type="search"
             id="searchInput"
         />
@@ -24,90 +24,339 @@ Consultas
         <table class="w-full caption-bottom text-sm">
             <thead class="bg-[#1e293b]">
                 <tr>
-                    <th class="h-12 px-4 text-left align-middle font-medium text-gray-400">Paciente</th>
-                    <th class="h-12 px-4 text-left align-middle font-medium text-gray-400">Médico</th>
-                    <th class="h-12 px-4 text-left align-middle font-medium text-gray-400">Fecha</th>
-                    <th class="h-12 px-4 text-left align-middle font-medium text-gray-400">Motivo</th>
+                    <th class="h-12 px-4 text-left align-middle font-medium text-gray-400 cursor-pointer">Nombre<span class="ml-1">↑</span></th>
+                    <th class="h-12 px-4 text-left align-middle font-medium text-gray-400 cursor-pointer">Fecha de Nacimiento</th>
+                    <th class="h-12 px-4 text-left align-middle font-medium text-gray-400 cursor-pointer">Sexo</th>
+                    <th class="h-12 px-4 text-left align-middle font-medium text-gray-400 cursor-pointer">Número de Identificación</th>
+                    <th class="h-12 px-4 text-left align-middle font-medium text-gray-400 cursor-pointer">Dirección</th>
+                    <th class="h-12 px-4 text-left align-middle font-medium text-gray-400 cursor-pointer">Teléfono</th>
+                    <th class="h-12 px-4 text-left align-middle font-medium text-gray-400 cursor-pointer">Fecha de Registro</th>
                     <th class="h-12 px-4 text-left align-middle font-medium text-gray-400">Acciones</th>
                 </tr>
             </thead>
-            <tbody id="consultaTableBody">
-                <!-- Las consultas se cargarán aquí dinámicamente -->
+            <tbody id="historiaTableBody">
+                {% for historia in historias %}
+                <tr class="border-b border-[#1e293b] hover:bg-[#1e293b] transition-colors">
+                    <td class="p-4 align-middle font-medium">{{ historia.nombre }}</td>
+                    <td class="p-4 align-middle">{{ historia.fecha_nacimiento }}</td>
+                    <td class="p-4 align-middle">{{ historia.sexo }}</td>
+                    <td class="p-4 align-middle">{{ historia.documento }}</td>
+                    <td class="p-4 align-middle">{{ historia.domicilio }}</td>
+                    <td class="p-4 align-middle">{{ historia.telefono }}</td>
+                    <td class="p-4 align-middle">{{ historia.fecha }}</td>
+                    <td class="p-4 align-middle">
+                        <div class="flex items-center gap-2">
+                            <button onclick="redirigir({{historia.id}})" class="border border-[#3f3f46] text-[#CCFFFF] py-1 px-3 rounded text-sm hover:bg-[#3f3f46] transition-colors">
+                                Atender
+                            </button>
+                            <button onclick="editar({{ historia.id }}, '{{ historia.nombre }}', '{{ historia.fecha_nacimiento }}', '{{ historia.sexo }}', '{{ historia.documento }}', '{{ historia.domicilio }}', '{{ historia.telefono }}', '{{ historia.fecha }}')" class="border border-[#3f3f46] text-[#CCFFFF] py-1 px-3 rounded text-sm hover:bg-[#3f3f46] transition-colors">
+                                Editar
+                            </button>
+                            <button onclick="eliminar({{ historia.id }})" class="border border-[#3f3f46] text-[#CCFFFF] py-1 px-3 rounded text-sm hover:bg-[#3f3f46] transition-colors">
+                                Eliminar
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
 
-<!-- Modal para crear consulta -->
-<dialog id="consultaModalCrear" class="bg-[#1e293b] text-[#CCFFFF] rounded-lg p-6 w-full max-w-md">
-    <h2 class="text-xl font-bold mb-4">Crear nueva consulta</h2>
-    <form id="createConsultaForm" method="dialog" class="space-y-4">
+<!-- =========================== MODALES ======================= -->
+<dialog id="historiaModalCrear" class="bg-[#1e293b] text-[#CCFFFF] rounded-lg p-6 w-full max-w-md">
+    <h2 class="text-xl font-bold mb-4">Crear una nueva historia clínica</h2>
+    <form id="createHistoriaForm" action="/api/historias_clinicas/" method="dialog" class="space-y-4">
         {% csrf_token %}
         <div>
-            <label for="paciente" class="block text-sm font-medium mb-1">Paciente</label>
-            <select id="paciente" name="paciente_id" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
-                <!-- Opciones de pacientes se cargarán dinámicamente -->
+            <label for="nombre" class="block text-sm font-medium mb-1">Nombre</label>
+            <input type="text" id="nombre" name="nombre" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+        </div>
+        <div>
+            <label for="fecha_nacimiento" class="block text-sm font-medium mb-1">Fecha de Nacimiento</label>
+            <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+        </div>
+        <div>
+            <label for="sexo" class="block text-sm font-medium mb-1">Sexo</label>
+            <select id="sexo" name="sexo" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+                <option value="masculino">Masculino</option>
+                <option value="femenino">Femenino</option>
+                <option value="otro">Otro</option>
             </select>
         </div>
         <div>
-            <label for="medico" class="block text-sm font-medium mb-1">Médico</label>
-            <select id="medico" name="medico_id" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
-                <!-- Opciones de médicos se cargarán dinámicamente -->
-            </select>
+            <label for="numero_identificacion" class="block text-sm font-medium mb-1">Número de Identificación</label>
+            <input type="text" id="numero_identificacion" name="numero_identificacion" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
         </div>
         <div>
-            <label for="motivo" class="block text-sm font-medium mb-1">Motivo</label>
-            <input type="text" id="motivo" name="motivo" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+            <label for="direccion" class="block text-sm font-medium mb-1">Dirección</label>
+            <input type="text" id="direccion" name="direccion" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
         </div>
         <div>
-            <label for="diagnostico" class="block text-sm font-medium mb-1">Diagnóstico</label>
-            <textarea id="diagnostico" name="diagnostico" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent"></textarea>
+            <label for="telefono" class="block text-sm font-medium mb-1">Teléfono</label>
+            <input type="tel" id="telefono" name="telefono" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
         </div>
         <div>
-            <label for="tratamiento" class="block text-sm font-medium mb-1">Tratamiento</label>
-            <textarea id="tratamiento" name="tratamiento" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent"></textarea>
+            <label for="fecha_registro" class="block text-sm font-medium mb-1">Fecha de Registro</label>
+            <input type="date" id="fecha_registro" name="fecha_registro" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
         </div>
         <div class="flex justify-end space-x-2 mt-6">
-            <button type="button" id="cancelButton" class="border border-[#3f3f46] text-[#CCFFFF] py-2 px-4 rounded hover:bg-[#3f3f46] transition-colors">
+            <button type="button" id="cancelButtonCrear" class="border border-[#3f3f46] text-[#CCFFFF] py-2 px-4 rounded hover:bg-[#3f3f46] transition-colors">
                 Cancelar
             </button>
-            <button type="submit" id="submitButton" class="bg-[#0369a1] text-[#CCFFFF] font-semibold py-2 px-4 rounded hover:bg-[#0284c7] transition-colors">
+            <button type="submit" id="submitButtonCrear" class="bg-[#0369a1] text-[#CCFFFF] font-semibold py-2 px-4 rounded hover:bg-[#0284c7] transition-colors">
                 Crear
             </button>
         </div>
     </form>
 </dialog>
 
-<!-- Modal para editar consulta -->
-<dialog id="consultaModalEditar" class="bg-[#1e293b] text-[#CCFFFF] rounded-lg p-6 w-full max-w-md">
-    <h2 class="text-xl font-bold mb-4">Editar consulta</h2>
-    <form id="editConsultaForm" method="dialog" class="space-y-4">
+<dialog id="historiaModalEditar" class="bg-[#1e293b] text-[#CCFFFF] rounded-lg p-6 w-full max-w-md">
+    <h2 class="text-xl font-bold mb-4">Editar historia clínica</h2>
+    <form id="editHistoriaForm" method="dialog" class="space-y-4">
         {% csrf_token %}
-        <input type="hidden" id="consultaId" name="consultaId">
+        <input type="hidden" id="id_historia" name="id">
         <div>
-            <label for="editMotivo" class="block text-sm font-medium mb-1">Motivo</label>
-            <input type="text" id="editMotivo" name="motivo" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+            <label for="nombre_e" class="block text-sm font-medium mb-1">Nombre</label>
+            <input type="text" id="nombre_e" name="nombre" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
         </div>
         <div>
-            <label for="editDiagnostico" class="block text-sm font-medium mb-1">Diagnóstico</label>
-            <textarea id="editDiagnostico" name="diagnostico" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent"></textarea>
+            <label for="fecha_nacimiento_e" class="block text-sm font-medium mb-1">Fecha de Nacimiento</label>
+            <input type="date" id="fecha_nacimiento_e" name="fecha_nacimiento" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
         </div>
         <div>
-            <label for="editTratamiento" class="block text-sm font-medium mb-1">Tratamiento</label>
-            <textarea id="editTratamiento" name="tratamiento" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent"></textarea>
+            <label for="sexo_e" class="block text-sm font-medium mb-1">Sexo</label>
+            <select id="sexo_e" name="sexo" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+                <option value="masculino">Masculino</option>
+                <option value="femenino">Femenino</option>
+                <option value="otro">Otro</option>
+            </select>
+        </div>
+        <div>
+            <label for="numero_identificacion_e" class="block text-sm font-medium mb-1">Número de Identificación</label>
+            <input type="text" id="numero_identificacion_e" name="numero_identificacion" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+        </div>
+        <div>
+            <label for="direccion_e" class="block text-sm font-medium mb-1">Dirección</label>
+            <input type="text" id="direccion_e" name="direccion" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+        </div>
+        <div>
+            <label for="telefono_e" class="block text-sm font-medium mb-1">Teléfono</label>
+            <input type="tel" id="telefono_e" name="telefono" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+        </div>
+        <div>
+            <label for="fecha_registro_e" class="block text-sm font-medium mb-1">Fecha de Registro</label>
+            <input type="date" id="fecha_registro_e" name="fecha_registro" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
         </div>
         <div class="flex justify-end space-x-2 mt-6">
             <button type="button" id="cancelButtonEditar" class="border border-[#3f3f46] text-[#CCFFFF] py-2 px-4 rounded hover:bg-[#3f3f46] transition-colors">
                 Cancelar
             </button>
             <button type="submit" id="submitButtonEditar" class="bg-[#0369a1] text-[#CCFFFF] font-semibold py-2 px-4 rounded hover:bg-[#0284c7] transition-colors">
-                Actualizar
+                Guardar Cambios
             </button>
         </div>
     </form>
 </dialog>
 
 <script>
+const csrfToken = '{{ csrf_token }}';
 
+// Obtener elementos del DOM
+const openModalCrear = document.getElementById('openModalCrear');
+const modalCrear = document.getElementById('historiaModalCrear');
+const cancelButtonCrear = document.getElementById('cancelButtonCrear');
+const createHistoriaForm = document.getElementById('createHistoriaForm');
+const modalEditar = document.getElementById('historiaModalEditar');
+const cancelButtonEditar = document.getElementById('cancelButtonEditar');
+const editHistoriaForm = document.getElementById('editHistoriaForm');
+let isSubmitting = false;
+
+// Abre el modal para crear historia clínica
+openModalCrear.addEventListener('click', () => {
+    modalCrear.showModal();
+});
+
+// Cierra el modal para crear historia clínica
+cancelButtonCrear.addEventListener('click', () => {
+    modalCrear.close();
+});
+
+// Enviar el formulario de creación
+createHistoriaForm.addEventListener('submit', (event) => {
+    event.preventDefault(); // Evitar el envío por defecto
+
+    const formData = new FormData(createHistoriaForm);
+    fetch(createHistoriaForm.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': createHistoriaForm.querySelector('input[name="csrfmiddlewaretoken"]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.error
+            });
+        } else {
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: data.message,
+                timer: 1500
+            }).then(() => {
+                window.location.reload();
+            });
+            document.getElementById('historiaModalCrear').close();
+            createHistoriaForm.reset();
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error inesperado.'
+        });
+    });
+});
+
+// Abre el modal para editar historia clínica
+function editar(id, nombre, fecha_nacimiento, sexo, numero_identificacion, direccion, telefono, fecha_registro) {
+    document.getElementById('id_historia').value = id;
+    document.getElementById('nombre_e').value = nombre;
+    document.getElementById('fecha_nacimiento_e').value = formatDate(fecha_nacimiento);
+    document.getElementById('sexo_e').value = sexo;
+    document.getElementById('numero_identificacion_e').value = numero_identificacion;
+    document.getElementById('direccion_e').value = direccion;
+    document.getElementById('telefono_e').value = telefono;
+    document.getElementById('fecha_registro_e').value = formatDate(fecha_registro);
+    modalEditar.showModal();
+}
+
+function formatDate(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+        // Si la fecha es inválida, intenta parsearla manualmente
+        const parts = dateString.split(/[-/]/);
+        if (parts.length === 3) {
+            // Asume formato YYYY-MM-DD o DD-MM-YYYY
+            const year = parts[2].length === 4 ? parts[2] : parts[0];
+            const month = parts[1] - 1; // Los meses en JavaScript son 0-11
+            const day = parts[2].length === 4 ? parts[0] : parts[2];
+            return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        }
+        return ''; // Si no se puede parsear, devuelve una cadena vacía
+    }
+    return date.toISOString().split('T')[0];
+}
+// Cierra el modal para editar historia clínica
+cancelButtonEditar.addEventListener('click', () => {
+    modalEditar.close();
+});
+
+// Enviar el formulario de edición
+editHistoriaForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+    isSubmitting = true;
+    
+    const formData = new FormData(editHistoriaForm);
+    const data = Object.fromEntries(formData)
+    try {
+        const response = await fetch(`/api/historias_clinicas/${formData.get('id')}/`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (response.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: 'Historia clínica actualizada exitosamente.',
+                timer: 1500
+            }).then(() => {
+                window.location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: result.error || 'Error al editar historia clínica.'
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al editar historia clínica.'
+        });
+    } finally {
+        isSubmitting = false;
+    }
+});
+
+// Elimina una historia clínica
+function eliminar(id) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¿Quieres eliminar esta historia clínica?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/api/historias_clinicas/${id}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            }).then(response => {
+                if (response.ok) {
+                    Swal.fire(
+                        'Eliminado',
+                        'La historia clínica ha sido eliminada.',
+                        'success'
+                    ).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire(
+                        'Error',
+                        'Error al eliminar historia clínica.',
+                        'error'
+                    );
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                Swal.fire(
+                    'Error',
+                    'Error al eliminar historia clínica.',
+                    'error'
+                );
+            });
+        }
+    });
+}
+
+
+
+function redirigir(id){
+    window.location.href = `${window.location.href}${id}`;
+    
+}
 </script>
 {% endblock %}

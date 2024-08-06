@@ -1,14 +1,14 @@
 from django.views import View
 from django.http import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist
-from .models import HistoriaClinica, SignosVitales, DatosCorporales, ProblemaCronico, ProblemaTransitorio, NotaSOAP, PerfilUsuario
+from .models import HistoriaClinica, SignosVitales, ProblemaCronico, ProblemaTransitorio, NotaSOAP, PerfilUsuario
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 import json
 import logging
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from .models import Consulta, PerfilUsuario
+
 
 
 logger = logging.getLogger(__name__)
@@ -99,57 +99,339 @@ class UsuarioApi(View):
         except PerfilUsuario.DoesNotExist:
             return JsonResponse({'error': 'Perfil de usuario no encontrado.'}, status=404)  
 
-class ConsultaApi(View):
-    def get(self, request):
-        consultas = Consulta.objects.all()
-        consulta_data = []
-        for consulta in consultas:
-            consulta_data.append({
-                'id': consulta.id,
-                'paciente': consulta.paciente.usuario.get_full_name(),
-                'medico': consulta.medico.usuario.get_full_name(),
-                'fecha': consulta.fecha.strftime("%Y-%m-%d %H:%M:%S"),
-                'motivo': consulta.motivo,
-                'diagnostico': consulta.diagnostico,
-                'tratamiento': consulta.tratamiento,
-            })
-        return JsonResponse({'consultas': consulta_data})
 
+
+
+class HistoriaClinicaApi(View):
+    
+    def get(self, request, id=None):
+        if id:
+            try:
+                historia = HistoriaClinica.objects.get(id=id)
+                historia_data = {
+                    'nombre': historia.nombre,
+                    'fecha_nacimiento': historia.fecha_nacimiento,
+                    'sexo': historia.sexo,
+                    'numero_identificacion': historia.numero_identificacion,
+                    'direccion': historia.direccion,
+                    'telefono': historia.telefono,
+                    'fecha_registro': historia.fecha_registro,
+                }
+                return JsonResponse({'historia': historia_data}, status=200)
+            except HistoriaClinica.DoesNotExist:
+                logger.error(f"HistoriaClinica with id {id} not found")
+                return JsonResponse({'error': 'Historia clínica no encontrada.'}, status=404)
+        else:
+            historias = HistoriaClinica.objects.all()
+            historias_data = []
+            for historia in historias:
+                historias_data.append({
+                    'id': historia.id,
+                    'nombre': historia.nombre,
+                    'fecha_nacimiento': historia.fecha_nacimiento,
+                    'sexo': historia.sexo,
+                    'numero_identificacion': historia.numero_identificacion,
+                    'direccion': historia.direccion,
+                    'telefono': historia.telefono,
+                    'fecha_registro': historia.fecha_registro,
+                })
+            return JsonResponse({'historias': historias_data}, status=200)
+    
+    
+    
     def post(self, request):
-        data = json.loads(request.body)
-        paciente_id = data.get('paciente_id')
-        medico_id = data.get('medico_id')
-        motivo = data.get('motivo')
-        diagnostico = data.get('diagnostico')
-        tratamiento = data.get('tratamiento')
+        # Extraer datos del formulario
+        nombre = request.POST.get('nombre')
+        fecha_nacimiento = request.POST.get('fecha_nacimiento')
+        sexo = request.POST.get('sexo')
+        numero_identificacion = request.POST.get('numero_identificacion')
+        direccion = request.POST.get('direccion')
+        telefono = request.POST.get('telefono')
+        fecha_registro = request.POST.get('fecha_registro')
 
-        if paciente_id and medico_id and motivo and diagnostico and tratamiento:
-            paciente = PerfilUsuario.objects.get(id=paciente_id)
-            medico = PerfilUsuario.objects.get(id=medico_id)
-            consulta = Consulta.objects.create(
-                paciente=paciente,
-                medico=medico,
-                motivo=motivo,
-                diagnostico=diagnostico,
-                tratamiento=tratamiento
-            )
-            return JsonResponse({'message': 'Consulta creada exitosamente.', 'id': consulta.id})
+        # Validar que todos los campos necesarios estén presentes
+        if all([nombre, fecha_nacimiento, sexo, numero_identificacion, direccion, telefono, fecha_registro]):
+            try:
+                # Crear una nueva entrada en HistoriaClinica
+                historia = HistoriaClinica.objects.create(
+                    nombre=nombre,
+                    fecha_nacimiento=fecha_nacimiento,
+                    sexo=sexo,
+                    documento=numero_identificacion,
+                    domicilio=direccion,
+                    telefono=telefono,
+                    fecha=fecha_registro
+                )
+                return JsonResponse({'message': 'Historia clínica creada exitosamente.', 'id': historia.id}, status=201)
+            except Exception as e:
+                logger.error(f"Error creating HistoriaClinica: {str(e)}")
+                return JsonResponse({'error': 'Error inesperado al procesar la solicitud.'}, status=500)
         else:
             return JsonResponse({'error': 'Faltan datos obligatorios en la solicitud.'}, status=400)
 
+
     def put(self, request, id):
         try:
-            consulta = Consulta.objects.get(id=id)
+            historia = HistoriaClinica.objects.get(id=id)
             data = json.loads(request.body)
             
-            if 'motivo' in data:
-                consulta.motivo = data['motivo']
-            if 'diagnostico' in data:
-                consulta.diagnostico = data['diagnostico']
-            if 'tratamiento' in data:
-                consulta.tratamiento = data['tratamiento']
-            
-            consulta.save()
-            return JsonResponse({'message': 'Consulta actualizada exitosamente.'})
-        except Consulta.DoesNotExist:
-            return JsonResponse({'error': 'Consulta no encontrada.'}, status=404)
+            nombre = data.get('nombre')
+            fecha_nacimiento = data.get('fecha_nacimiento')
+            sexo = data.get('sexo')
+            numero_identificacion = data.get('numero_identificacion')
+            direccion = data.get('direccion')
+            telefono = data.get('telefono')
+            fecha_registro = data.get('fecha_registro')
+
+            if nombre:
+                historia.nombre = nombre
+            if fecha_nacimiento:
+                historia.fecha_nacimiento = fecha_nacimiento
+            if sexo:
+                historia.sexo = sexo
+            if numero_identificacion:
+                historia.numero_identificacion = numero_identificacion
+            if direccion:
+                historia.direccion = direccion
+            if telefono:
+                historia.telefono = telefono
+            if fecha_registro:
+                historia.fecha_registro = fecha_registro
+
+            historia.save()
+            return JsonResponse({'message': 'Historia clínica actualizada exitosamente.'}, status=200)
+        except HistoriaClinica.DoesNotExist:
+            logger.error(f"HistoriaClinica with id {id} not found")
+            return JsonResponse({'error': 'Historia clínica no encontrada.'}, status=404)
+        except json.JSONDecodeError:
+            logger.error("Invalid JSON in request body")
+            return JsonResponse({'error': 'JSON inválido en el cuerpo de la solicitud.'}, status=400)
+        except Exception as e:
+            logger.error(f"Unexpected error: {str(e)}")
+            return JsonResponse({'error': 'Error inesperado al procesar la solicitud.'}, status=500)
+
+    def delete(self, request, id):
+        try:
+            historia = HistoriaClinica.objects.get(id=id)
+            historia.delete()
+            return JsonResponse({'message': 'Historia clínica eliminada exitosamente.'}, status=200)
+        except HistoriaClinica.DoesNotExist:
+            logger.error(f"HistoriaClinica with id {id} not found")
+            return JsonResponse({'error': 'Historia clínica no encontrada.'}, status=404)
+        except Exception as e:
+            logger.error(f"Unexpected error: {str(e)}")
+            return JsonResponse({'error': 'Error inesperado al procesar la solicitud.'}, status=500)
+
+        
+@method_decorator(csrf_exempt, name='dispatch')
+class SignosVitalesApi(View):
+    def get(self, request, id=None):
+        if id:
+            try:
+                signos = SignosVitales.objects.get(id=id)
+                data = {
+                    'id': signos.id,
+                    'historia_clinica': signos.historia_clinica.id,
+                    'fecha': str(signos.fecha),
+                    'pulso': signos.pulso,
+                    'presion_arterial': signos.presion_arterial,
+                    'temperatura': str(signos.temperatura),
+                    'frecuencia_respiratoria': signos.frecuencia_respiratoria,
+                    'saturacion_oxigeno': signos.saturacion_oxigeno,
+                    'peso': str(signos.peso),
+                    'talla': str(signos.talla),
+                    'imc': str(signos.imc),
+                    'perimetro_cefalico': str(signos.perimetro_cefalico),
+                }
+            except ObjectDoesNotExist:
+                return JsonResponse({'error': 'Signos Vitales no encontrados'}, status=404)
+        else:
+            signos_list = SignosVitales.objects.all()
+            data = [{
+                'id': signos.id,
+                'historia_clinica': signos.historia_clinica.id,
+                'fecha': str(signos.fecha),
+                'pulso': signos.pulso,
+                'presion_arterial': signos.presion_arterial,
+            } for signos in signos_list]
+        return JsonResponse(data, safe=False)
+
+    def post(self, request):
+        data = json.loads(request.body)
+        signos = SignosVitales.objects.create(**data)
+        return JsonResponse({
+            'id': signos.id,
+            'mensaje': 'Signos Vitales registrados exitosamente'
+        }, status=201)
+
+    def put(self, request, id):
+        try:
+            signos = SignosVitales.objects.get(id=id)
+            data = json.loads(request.body)
+            for key, value in data.items():
+                setattr(signos, key, value)
+            signos.save()
+            return JsonResponse({'mensaje': 'Signos Vitales actualizados exitosamente'})
+        except ObjectDoesNotExist:
+            return JsonResponse({'error': 'Signos Vitales no encontrados'}, status=404)
+
+    def delete(self, request, id):
+        try:
+            signos = SignosVitales.objects.get(id=id)
+            signos.delete()
+            return JsonResponse({'mensaje': 'Signos Vitales eliminados exitosamente'})
+        except ObjectDoesNotExist:
+            return JsonResponse({'error': 'Signos Vitales no encontrados'}, status=404)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ProblemaCronicoApi(View):
+    def get(self, request, id=None):
+        if id:
+            try:
+                problema = ProblemaCronico.objects.get(id=id)
+                data = {
+                    'id': problema.id,
+                    'historia_clinica': problema.historia_clinica.id,
+                    'descripcion': problema.descripcion,
+                    'fecha_inicio': str(problema.fecha_inicio),
+                    'fecha_resolucion': str(problema.fecha_resolucion) if problema.fecha_resolucion else None,
+                }
+            except ObjectDoesNotExist:
+                return JsonResponse({'error': 'Problema Crónico no encontrado'}, status=404)
+        else:
+            problemas = ProblemaCronico.objects.all()
+            data = [{
+                'id': problema.id,
+                'historia_clinica': problema.historia_clinica.id,
+                'descripcion': problema.descripcion,
+                'fecha_inicio': str(problema.fecha_inicio),
+            } for problema in problemas]
+        return JsonResponse(data, safe=False)
+
+    def post(self, request):
+        data = json.loads(request.body)
+        problema = ProblemaCronico.objects.create(**data)
+        return JsonResponse({
+            'id': problema.id,
+            'mensaje': 'Problema Crónico registrado exitosamente'
+        }, status=201)
+
+    def put(self, request, id):
+        try:
+            problema = ProblemaCronico.objects.get(id=id)
+            data = json.loads(request.body)
+            for key, value in data.items():
+                setattr(problema, key, value)
+            problema.save()
+            return JsonResponse({'mensaje': 'Problema Crónico actualizado exitosamente'})
+        except ObjectDoesNotExist:
+            return JsonResponse({'error': 'Problema Crónico no encontrado'}, status=404)
+
+    def delete(self, request, id):
+        try:
+            problema = ProblemaCronico.objects.get(id=id)
+            problema.delete()
+            return JsonResponse({'mensaje': 'Problema Crónico eliminado exitosamente'})
+        except ObjectDoesNotExist:
+            return JsonResponse({'error': 'Problema Crónico no encontrado'}, status=404)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ProblemaTransitorioApi(View):
+    def get(self, request, id=None):
+        if id:
+            try:
+                problema = ProblemaTransitorio.objects.get(id=id)
+                data = {
+                    'id': problema.id,
+                    'historia_clinica': problema.historia_clinica.id,
+                    'descripcion': problema.descripcion,
+                    'fecha': str(problema.fecha),
+                }
+            except ObjectDoesNotExist:
+                return JsonResponse({'error': 'Problema Transitorio no encontrado'}, status=404)
+        else:
+            problemas = ProblemaTransitorio.objects.all()
+            data = [{
+                'id': problema.id,
+                'historia_clinica': problema.historia_clinica.id,
+                'descripcion': problema.descripcion,
+                'fecha': str(problema.fecha),
+            } for problema in problemas]
+        return JsonResponse(data, safe=False)
+
+    def post(self, request):
+        data = json.loads(request.body)
+        problema = ProblemaTransitorio.objects.create(**data)
+        return JsonResponse({
+            'id': problema.id,
+            'mensaje': 'Problema Transitorio registrado exitosamente'
+        }, status=201)
+
+    def put(self, request, id):
+        try:
+            problema = ProblemaTransitorio.objects.get(id=id)
+            data = json.loads(request.body)
+            for key, value in data.items():
+                setattr(problema, key, value)
+            problema.save()
+            return JsonResponse({'mensaje': 'Problema Transitorio actualizado exitosamente'})
+        except ObjectDoesNotExist:
+            return JsonResponse({'error': 'Problema Transitorio no encontrado'}, status=404)
+
+    def delete(self, request, id):
+        try:
+            problema = ProblemaTransitorio.objects.get(id=id)
+            problema.delete()
+            return JsonResponse({'mensaje': 'Problema Transitorio eliminado exitosamente'})
+        except ObjectDoesNotExist:
+            return JsonResponse({'error': 'Problema Transitorio no encontrado'}, status=404)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class NotaSOAPApi(View):
+    def get(self, request, id=None):
+        if id:
+            try:
+                nota = NotaSOAP.objects.get(id=id)
+                data = {
+                    'id': nota.id,
+                    'historia_clinica': nota.historia_clinica.id,
+                    'fecha': str(nota.fecha),
+                    'contenido': nota.contenido,
+                }
+            except ObjectDoesNotExist:
+                return JsonResponse({'error': 'Nota SOAP no encontrada'}, status=404)
+        else:
+            notas = NotaSOAP.objects.all()
+            data = [{
+                'id': nota.id,
+                'historia_clinica': nota.historia_clinica.id,
+                'fecha': str(nota.fecha),
+            } for nota in notas]
+        return JsonResponse(data, safe=False)
+
+    def post(self, request):
+        data = json.loads(request.body)
+        nota = NotaSOAP.objects.create(**data)
+        return JsonResponse({
+            'id': nota.id,
+            'mensaje': 'Nota SOAP registrada exitosamente'
+        }, status=201)
+
+    def put(self, request, id):
+        try:
+            nota = NotaSOAP.objects.get(id=id)
+            data = json.loads(request.body)
+            for key, value in data.items():
+                setattr(nota, key, value)
+            nota.save()
+            return JsonResponse({'mensaje': 'Nota SOAP actualizada exitosamente'})
+        except ObjectDoesNotExist:
+            return JsonResponse({'error': 'Nota SOAP no encontrada'}, status=404)
+
+    def delete(self, request, id):
+        try:
+            nota = NotaSOAP.objects.get(id=id)
+            nota.delete()
+            return JsonResponse({'mensaje': 'Nota SOAP eliminada exitosamente'})
+        except ObjectDoesNotExist:
+            return JsonResponse({'error': 'Nota SOAP no encontrada'}, status=404)
