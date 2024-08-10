@@ -8,15 +8,21 @@
             size: letter portrait;
             margin: 2cm;
         }
+
         body {
             font-family: Arial, sans-serif;
             color: #000000;
         }
         
-        .logo {
-            width: 100px;
+        .page-logo {
+            position: fixed;
+            top: 2cm; /* Ajusta la distancia desde la parte superior de la página */
+            left: 0;
+            width: 30px; /* Ajusta el tamaño del logo */
             height: auto;
+            z-index: -1; /* Asegura que el logo esté detrás del contenido */
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -39,18 +45,21 @@
     </style>
 </head>
 <body>
+    
+
     <div class="header">
-        {% load static %}
+        
         <table>
+            
             <tr>
-                <td style="width: 20%; border: none;">
-                    <img src="{% static 'img/logo.png' %}" alt="Logo" >
+                <td style="width: 30%; border: none;">
+                    <img src="https://serrana.edu.py/v2/wp-content/uploads/2021/01/logo-serrana.png" class="logo">
                 </td>
                 <td style="width: 60%; border: none; text-align: center;">
                     <h1>Universidad Privada María Serrana</h1>
                 </td>
                 <td style="width: 20%; border: none; text-align: right;">
-                    Prontuario: {{ historia.prontuario }}
+                    <strong>Prontuario:</strong> {{ historia.id }}
                 </td>
             </tr>
         </table>
@@ -63,19 +72,19 @@
                 <td>Jefe de la familia: {{ historia.jefe_familia }}</td>
             </tr>
             <tr>
-                <td colspan="3">Nombre y apellidos: {{ historia.nombre }}</td>
+                <td colspan="3"><strong>Nombre y apellidos:</strong> {{ historia.nombre }}</td>
             </tr>
             <tr>
-                <td>Fecha nacido: {{ historia.fecha_nacimiento|date:"d/m/Y" }}</td>
-                <td>sexo: {{ historia.sexo }}</td>
-                <td>Documento: {{ historia.documento }}</td>
+                <td><strong>Fecha nacido:</strong> {{ historia.fecha_nacimiento|date:"d/m/Y" }}</td>
+                <td><strong>sexo:</strong> {{ historia.sexo }}</td>
+                <td><strong>Documento:</strong> {{ historia.documento }}</td>
             </tr>
             <tr>
-                <td colspan="2">Domicilio: {{ historia.domicilio }}</td>
-                <td>Teléfono: {{ historia.telefono }}</td>
+                <td colspan="2"><strong>Domicilio:</strong> {{ historia.domicilio }}</td>
+                <td><strong>Teléfono:</strong> {{ historia.telefono }}</td>
             </tr>
             <tr>
-                <td colspan="3">Estado civil: {{ historia.estado_civil }}</td>
+                <td colspan="3"><strong>Estado civil:</strong> {{ historia.estado_civil }}</td>
             </tr>
         </table>
     </div>
@@ -114,10 +123,10 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>1</td>
-                    <td>Control de salud</td>
-                    <td></td>
-                    <td></td>
+                    <td style="width: 10%">1</td>
+                    <td style="width: 50%">Control de salud</td>
+                    <td style="width: 20%"></td>
+                    <td style="width: 20%"></td>
                 </tr>
                 {% for problema in problemas_cronicos %}
                 <tr>
@@ -130,21 +139,20 @@
             </tbody>
         </table>
     </div>
-    
 
     <div class="page-break"></div>
 
     <div class="header">
         <table>
             <tr>
-                <td style="width: 20%; border: none;">
-                    <img src="ruta_al_logo.png" class="logo">
+                <td style="width: 30%; border: none;">
+                    <img src="https://serrana.edu.py/v2/wp-content/uploads/2021/01/logo-serrana.png" class="logo">
                 </td>
                 <td style="width: 60%; border: none; text-align: center;">
                     <h1>Universidad Privada María Serrana</h1>
                 </td>
                 <td style="width: 20%; border: none; text-align: right;">
-                    Prontuario: {{ historia.prontuario }}
+                    Prontuario: {{ historia.id }}
                 </td>
             </tr>
         </table>
@@ -160,7 +168,6 @@
             <tr>
                 <td>{{ problema.descripcion }}</td>
                 <td>{{ problema.fecha|date:"d/m/Y" }}</td>
-                
             </tr>
             {% endfor %}
         </table>

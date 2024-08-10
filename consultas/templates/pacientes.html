@@ -7,7 +7,7 @@ Historia Clínica
 {% block content %}
 <div class="flex flex-col gap-4 bg-[#0f172a] text-[#CCFFFF] p-6">
     <h1 class="text-3xl font-bold mb-6">Historia Clínica</h1>
-    <a href="{% url 'generar_pdf_historia_clinica' historia.id %}" class="bg-[#0369a1] text-[#CCFFFF] font-semibold py-2 px-4 rounded hover:bg-[#0284c7] transition-colors mb-4">
+    <a href="{% url 'generar_pdf_historia_clinica' historia.id %}" target="_blank" class="bg-[#0369a1] text-[#CCFFFF] font-semibold py-2 px-4 rounded hover:bg-[#0284c7] transition-colors mb-4">
         Generar PDF
     </a>
     <!-- Información básica del paciente -->
@@ -250,13 +250,13 @@ Historia Clínica
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <button 
                                         onclick="editItem('${tableId}', ${item.id}, '${encodeURIComponent(JSON.stringify(item))}')" 
-                                        class="text-indigo-600 hover:text-indigo-900 mr-2">
-                                        Editar
+                                        class="inline-flex items-center gap-2 text-indigo-600 hover:text-white hover:bg-indigo-600 border border-indigo-600 rounded-md py-2 px-4 text-sm font-semibold transition-colors duration-300">
+                                        <i class="fas fa-edit"></i> Editar
                                     </button>
                                     <button 
                                         onclick="deleteItem('${url}${item.id}/', '${tableId}')" 
-                                        class="text-red-600 hover:text-red-900">
-                                        Eliminar
+                                        class="inline-flex items-center gap-2 text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded-md py-2 px-4 text-sm font-semibold transition-colors duration-300">
+                                        <i class="fas fa-trash-alt"></i> Eliminar
                                     </button>
                                 </td>
                             </tr>
@@ -272,64 +272,98 @@ Historia Clínica
     
     
     // Función para cargar datos en el modal de edición
-function loadEditForm(modalId, item) {
-    const form = document.getElementById(modalId).querySelector('form');
-    Object.keys(item).forEach(key => {
-        const input = form.querySelector(`[name="${key}"]`);
-        if (input) {
-            input.value = item[key];
-        }
-    });
-}
-
-// Función para manejar la edición de elementos
-function editItem(tableId, id, item) {
-    const modalId = {
-        'signosVitalesTable': 'signosVitalesModal',
-        'problemasTransitoriosTable': 'problemaTransitorioModal',
-        'problemasCronicosTable': 'problemaCronicoModal',
-        'notasSOAPTable': 'notaSOAPModal'
-    }[tableId];
-
-    if (modalId) {
-        loadEditForm(modalId, item);
-        document.getElementById(modalId).showModal();
-        document.querySelector(`#${modalId} form [name="id"]`).value = id;
-    }
-}
-
-// Función para enviar formularios
-function submitForm(formId, url, tableId, columns) {
-    const form = document.getElementById(formId);
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData);
-        const id = data.id;
-        const method = id ? 'PUT' : 'POST';
-        const submitUrl = id ? `${url}${id}/` : url;
-
-        try {
-            const response = await fetch(submitUrl, {
-                method: method,
-                body: method === 'PUT' ? JSON.stringify(data) : formData,
-                headers: {
-                    'X-CSRFToken': csrfToken,
-                    ...(method === 'PUT' ? { 'Content-Type': 'application/json' } : {})
-                }
-            });
-            if (response.ok) {
-                form.reset();
-                form.closest('dialog').close();
-                loadData(`${url}${historiaId}/`, tableId, getColumnsForTable(tableId));
-            } else {
-                console.error('Error al enviar el formulario');
+    function loadEditForm(modalId, itemData) {
+        const form = document.getElementById(modalId).querySelector('form');
+        const item = JSON.parse(decodeURIComponent(itemData));
+        Object.keys(item).forEach(key => {
+            const input = form.querySelector(`[name="${key}"]`);
+            if (input) {
+                input.value = item[key];
             }
-        } catch (error) {
-            console.error('Error:', error);
+        });
+    }
+
+    function editItem(tableId, id, itemData) {
+        const modalId = {
+            'signosVitalesTable': 'signosVitalesModal',
+            'problemasTransitoriosTable': 'problemaTransitorioModal',
+            'problemasCronicosTable': 'problemaCronicoModal',
+            'notasSOAPTable': 'notaSOAPModal'
+        }[tableId];
+    
+        if (modalId) {
+            const modal = document.getElementById(modalId);
+            const form = modal.querySelector('form');
+            const idInput = form.querySelector('[name="id"]');
+            if (idInput) {
+                idInput.value = id;
+            }
+            loadEditForm(modalId, itemData);
+            modal.showModal();
         }
-    });
-}
+    }
+
+    function submitForm(formId, url, tableId, columns) {
+        const form = document.getElementById(formId);
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Crear un objeto con los datos del formulario
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            
+            // Asegurarse de que el id se incluya correctamente
+            const idInput = form.querySelector('[name="id"]');
+            const id = idInput ? idInput.value : null;
+            
+            if (id && id !== "") {
+                data.id = id;
+            } else {
+                delete data.id; // Eliminar el campo id si está vacío
+            }
+    
+            const method = id && id !== "" ? 'PUT' : 'POST';
+            const submitUrl = (id && id !== "") ? `${url}${id}/` : url;
+    
+            console.log('Datos a enviar:', data);
+            console.log('Método:', method);
+            console.log('URL:', submitUrl);
+    
+            try {
+                let response;
+                if (method === 'POST') {
+                    // Para POST, enviamos FormData
+                    response = await fetch(submitUrl, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        }
+                    });
+                } else {
+                    // Para PUT, enviamos JSON
+                    response = await fetch(submitUrl, {
+                        method: 'PUT',
+                        body: JSON.stringify(data),
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                }
+    
+                if (response.ok) {
+                    form.reset();
+                    form.closest('dialog').close();
+                    loadData(`${url}${historiaId}/`, tableId, getColumnsForTable(tableId));
+                } else {
+                    console.error('Error al enviar el formulario');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    }
 
    
     
@@ -398,7 +432,7 @@ function submitForm(formId, url, tableId, columns) {
                     { header: 'Peso', key: 'peso' },
                     { header: 'Talla', key: 'talla' },
                     { header: 'Imc', key: 'imc' },
-                    { header: 'PC', key: 'perimetro_cefalico' }
+                    
                 ];
             case 'problemasTransitoriosTable':
                 return [
@@ -429,7 +463,11 @@ function submitForm(formId, url, tableId, columns) {
         idInput.name = 'id';
         form.appendChild(idInput);
     });
-
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const hoy = new Date();
+        const fecha = hoy.toISOString().slice(0, 10);
+        document.getElementById('fecha_transitorio').value = fecha;
+    });
     // Cargar datos iniciales
     loadData(`/signos_vitales/${historiaId}/`, 'signosVitalesTable', getColumnsForTable('signosVitalesTable'));
     loadData(`/problemas_transitorios/${historiaId}/`, 'problemasTransitoriosTable', getColumnsForTable('problemasTransitoriosTable'));

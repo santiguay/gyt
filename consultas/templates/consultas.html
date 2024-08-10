@@ -49,7 +49,7 @@ Historia Clínica
                             <button onclick="redirigir({{historia.id}})" class="border border-[#3f3f46] text-[#CCFFFF] py-1 px-3 rounded text-sm hover:bg-[#3f3f46] transition-colors">
                                 Atender
                             </button>
-                            <button onclick="editar({{ historia.id }}, '{{ historia.nombre }}', '{{ historia.fecha_nacimiento }}', '{{ historia.sexo }}', '{{ historia.documento }}', '{{ historia.domicilio }}', '{{ historia.telefono }}', '{{ historia.fecha }}')" class="border border-[#3f3f46] text-[#CCFFFF] py-1 px-3 rounded text-sm hover:bg-[#3f3f46] transition-colors">
+                            <button onclick="editar({{ historia.id }}, '{{ historia.nombre }}', '{{ historia.fecha_nacimiento }}', '{{ historia.sexo }}', '{{ historia.documento }}', '{{ historia.domicilio }}', '{{ historia.telefono }}', '{{ historia.fecha }}', '{{historia.estado_civil}}')" class="border border-[#3f3f46] text-[#CCFFFF] py-1 px-3 rounded text-sm hover:bg-[#3f3f46] transition-colors">
                                 Editar
                             </button>
                             <button onclick="eliminar({{ historia.id }})" class="border border-[#3f3f46] text-[#CCFFFF] py-1 px-3 rounded text-sm hover:bg-[#3f3f46] transition-colors">
@@ -88,6 +88,10 @@ Historia Clínica
         <div>
             <label for="numero_identificacion" class="block text-sm font-medium mb-1">Número de Identificación</label>
             <input type="text" id="numero_identificacion" name="numero_identificacion" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+        </div>
+        <div>
+            <label for="numero_identificacion" class="block text-sm font-medium mb-1">Estado civil</label>
+            <input type="text" id="estado_civil" name="estado_civil" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
         </div>
         <div>
             <label for="direccion" class="block text-sm font-medium mb-1">Dirección</label>
@@ -142,6 +146,10 @@ Historia Clínica
             <input type="text" id="direccion_e" name="direccion" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
         </div>
         <div>
+            <label for="numero_identificacion" class="block text-sm font-medium mb-1">Estado civil</label>
+            <input type="text" id="estado_civil_e" name="estado_civil" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
+        </div>
+        <div>
             <label for="telefono_e" class="block text-sm font-medium mb-1">Teléfono</label>
             <input type="tel" id="telefono_e" name="telefono" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:border-transparent">
         </div>
@@ -172,7 +180,16 @@ const modalEditar = document.getElementById('historiaModalEditar');
 const cancelButtonEditar = document.getElementById('cancelButtonEditar');
 const editHistoriaForm = document.getElementById('editHistoriaForm');
 let isSubmitting = false;
+document.getElementById('searchInput').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#historiaTableBody tr');
 
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        const rowText = Array.from(cells).map(cell => cell.textContent.toLowerCase()).join(' ');
+        row.style.display = rowText.includes(searchTerm) ? '' : 'none';
+    });
+});
 // Abre el modal para crear historia clínica
 openModalCrear.addEventListener('click', () => {
     modalCrear.showModal();
@@ -226,7 +243,7 @@ createHistoriaForm.addEventListener('submit', (event) => {
 });
 
 // Abre el modal para editar historia clínica
-function editar(id, nombre, fecha_nacimiento, sexo, numero_identificacion, direccion, telefono, fecha_registro) {
+function editar(id, nombre, fecha_nacimiento, sexo, numero_identificacion, direccion, telefono, fecha_registro,estado_civil) {
     document.getElementById('id_historia').value = id;
     document.getElementById('nombre_e').value = nombre;
     document.getElementById('fecha_nacimiento_e').value = formatDate(fecha_nacimiento);
@@ -235,6 +252,7 @@ function editar(id, nombre, fecha_nacimiento, sexo, numero_identificacion, direc
     document.getElementById('direccion_e').value = direccion;
     document.getElementById('telefono_e').value = telefono;
     document.getElementById('fecha_registro_e').value = formatDate(fecha_registro);
+    document.getElementById('estado_civil_e').value = estado_civil;
     modalEditar.showModal();
 }
 

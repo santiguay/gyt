@@ -147,9 +147,10 @@ class HistoriaClinicaApi(View):
         direccion = request.POST.get('direccion')
         telefono = request.POST.get('telefono')
         fecha_registro = request.POST.get('fecha_registro')
+        estado_civil = request.POST.get('estado_civil')
 
         # Validar que todos los campos necesarios estén presentes
-        if all([nombre, fecha_nacimiento, sexo, numero_identificacion, direccion, telefono, fecha_registro]):
+        if all([nombre, fecha_nacimiento, sexo, numero_identificacion, direccion, telefono, fecha_registro,estado_civil]):
             try:
                 # Crear una nueva entrada en HistoriaClinica
                 historia = HistoriaClinica.objects.create(
@@ -159,7 +160,8 @@ class HistoriaClinicaApi(View):
                     documento=numero_identificacion,
                     domicilio=direccion,
                     telefono=telefono,
-                    fecha=fecha_registro
+                    fecha=fecha_registro,
+                    estado_civil = estado_civil,
                 )
                 return JsonResponse({'message': 'Historia clínica creada exitosamente.', 'id': historia.id}, status=201)
             except Exception as e:
@@ -181,6 +183,7 @@ class HistoriaClinicaApi(View):
             direccion = data.get('direccion')
             telefono = data.get('telefono')
             fecha_registro = data.get('fecha_registro')
+            estado_civil = data.get('estado_civil')
 
             if nombre:
                 historia.nombre = nombre
@@ -196,7 +199,8 @@ class HistoriaClinicaApi(View):
                 historia.telefono = telefono
             if fecha_registro:
                 historia.fecha_registro = fecha_registro
-
+            if estado_civil:
+                historia.estado_civil = estado_civil
             historia.save()
             return JsonResponse({'message': 'Historia clínica actualizada exitosamente.'}, status=200)
         except HistoriaClinica.DoesNotExist:
@@ -363,7 +367,7 @@ class ProblemaCronicoApi(View):
                         'historia_clinica': problema.historia_clinica.id,
                         'descripcion': problema.descripcion,
                         'fecha_inicio': str(problema.fecha_inicio),
-                        'fecha_resolucion': str(problema.fecha_resolucion) if problema.fecha_resolucion else None,
+                        'fecha_resolucion': str(problema.fecha_resolucion) ,
                     } for problema in problemas]
                 else:
                     return JsonResponse({'error': 'No se encontraron problemas crónicos para esta historia clínica'}, status=404)
@@ -381,11 +385,15 @@ class ProblemaCronicoApi(View):
 
     def post(self, request):
         fecha_inicio = request.POST.get('fecha_inicio')
-        fecha_resolucion = request.POST.get('fecha_resolucion')
+        fecha_resolucion = request.POST.get('fecha_resolucion') 
         historiaId = request.POST.get('historia_clinica')
         historia = HistoriaClinica.objects.get(id =  historiaId)
         descripcion = request.POST.get('descripcion')
-        problema = ProblemaCronico.objects.create(historia_clinica = historia, descripcion = descripcion ,fecha_inicio  = fecha_inicio, fecha_resolucion=fecha_resolucion )
+        print(fecha_resolucion)
+        if fecha_resolucion:
+            problema = ProblemaCronico.objects.create(historia_clinica = historia, descripcion = descripcion ,fecha_inicio  = fecha_inicio, fecha_resolucion=fecha_resolucion )
+        else: 
+            problema = ProblemaCronico.objects.create(historia_clinica = historia, descripcion = descripcion ,fecha_inicio  = fecha_inicio )   
         return JsonResponse({
             'id': problema.id,
             'mensaje': 'Problema Crónico registrado exitosamente'

@@ -8,6 +8,9 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 from io import BytesIO
 from datetime import date
+from django.templatetags.static import static
+import os
+from django.conf import settings
 # Create your views here.
 def menu_view(request):
     return redirect('./consultas')
@@ -59,12 +62,15 @@ def generar_pdf_historia_clinica(request, historia_id):
     problemas_transitorios = ProblemaTransitorio.objects.filter(historia_clinica=historia)
     notas_soap = NotaSOAP.objects.filter(historia_clinica=historia).order_by('-fecha')[:5]  # Últimas 5 notas
     
+    
     context = {
         'historia': historia,
         'signos_vitales': signos_vitales,
         'problemas_cronicos': problemas_cronicos,
         'problemas_transitorios': problemas_transitorios,
         'notas_soap': notas_soap,
+        
+        
     }
     
     template = get_template('pdf_historia_clinica.html')
