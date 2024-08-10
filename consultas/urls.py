@@ -11,6 +11,7 @@ urlpatterns = [
     path('users/', views.users, name='users'),
     path('consultas/', views.consultas, name='consultas'),
     path('consultas/<int:id>/', views.consultas, name='consultasPaciente'),
+    path('historia/<int:historia_id>/pdf/', views.generar_pdf_historia_clinica, name='generar_pdf_historia_clinica'),
     
 
     # ========================== APIS ================
@@ -19,10 +20,15 @@ urlpatterns = [
     path('api/historias_clinicas/<int:id>/', apis.HistoriaClinicaApi.as_view(), name='historia-clinica-detail'),
     path('signos_vitales/', apis.SignosVitalesApi.as_view(), name='signos_vitales_list'),
     path('signos_vitales/<int:id>/', apis.SignosVitalesApi.as_view(), name='signos_vitales_detail'),
+    path('signos_vitales/<int:historiaId>/<int:id>/', apis.SignosVitalesApi.as_view(), name='signos_vitales_detailPlus'),
     path('problemas_cronicos/', apis.ProblemaCronicoApi.as_view(), name='problema_cronico_list'),
     path('problemas_cronicos/<int:id>/', apis.ProblemaCronicoApi.as_view(), name='problema_cronico_detail'),
+    path('problemas_cronicos/<int:historiaId>/<int:id>/', apis.ProblemaCronicoApi.as_view(), name='problema_cronico_detailPlus'),
+
     path('problemas_transitorios/', apis.ProblemaTransitorioApi.as_view(), name='problema_transitorio_list'),
     path('problemas_transitorios/<int:id>/', apis.ProblemaTransitorioApi.as_view(), name='problema_transitorio_detail'),
+    path('problemas_transitorios/<int:historiaId>/<int:id>/', apis.ProblemaTransitorioApi.as_view(), name='problema_transitorio_detailPlus'),
     path('notas_soap/', apis.NotaSOAPApi.as_view(), name='nota_soap_list'),
     path('notas_soap/<int:id>/', apis.NotaSOAPApi.as_view(), name='nota_soap_detail'),
+    path('notas_soap/<int:historiaId>/<int:id>/', apis.NotaSOAPApi.as_view(), name='nota_soap_detail'),
 ]

@@ -1,0 +1,183 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Historia Clínica</title>
+    <style>
+        @page {
+            size: letter portrait;
+            margin: 2cm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            color: #000000;
+        }
+        
+        .logo {
+            width: 100px;
+            height: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #000000;
+            padding: 5px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .section {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        {% load static %}
+        <table>
+            <tr>
+                <td style="width: 20%; border: none;">
+                    <img src="{% static 'img/logo.png' %}" alt="Logo" >
+                </td>
+                <td style="width: 60%; border: none; text-align: center;">
+                    <h1>Universidad Privada María Serrana</h1>
+                </td>
+                <td style="width: 20%; border: none; text-align: right;">
+                    Prontuario: {{ historia.prontuario }}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <table>
+            <tr>
+                <td colspan="2"><strong>HISTORIA CLÍNICA</strong></td>
+                <td>Jefe de la familia: {{ historia.jefe_familia }}</td>
+            </tr>
+            <tr>
+                <td colspan="3">Nombre y apellidos: {{ historia.nombre }}</td>
+            </tr>
+            <tr>
+                <td>Fecha nacido: {{ historia.fecha_nacimiento|date:"d/m/Y" }}</td>
+                <td>sexo: {{ historia.sexo }}</td>
+                <td>Documento: {{ historia.documento }}</td>
+            </tr>
+            <tr>
+                <td colspan="2">Domicilio: {{ historia.domicilio }}</td>
+                <td>Teléfono: {{ historia.telefono }}</td>
+            </tr>
+            <tr>
+                <td colspan="3">Estado civil: {{ historia.estado_civil }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <table>
+            <tr>
+                <td colspan="5"><strong>Signos vitales:</strong></td>
+            </tr>
+            <tr>
+                <td>Pulso: {{ signos_vitales.pulso }}</td>
+                <td>PA: {{ signos_vitales.presion_arterial }}</td>
+                <td>T°: {{ signos_vitales.temperatura }}</td>
+                <td>FR: {{ signos_vitales.frecuencia_respiratoria }}</td>
+                <td>SatO<sub>2</sub>: {{ signos_vitales.saturacion_oxigeno }}</td>
+            </tr>
+            <tr>
+                <td>Peso: {{ signos_vitales.peso }}</td>
+                <td>Talla: {{ signos_vitales.talla }}</td>
+                <td>IMC: {{ signos_vitales.imc }}</td>
+                <td colspan="2">PC: {{ signos_vitales.perimetro_cefalico }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <strong>Lista de Problemas:</strong>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 10%">#</th>
+                    <th style="width: 50%">CRÓNICOS</th>
+                    <th style="width: 20%">Fecha Inicio</th>
+                    <th style="width: 20%">Fecha Resolución</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Control de salud</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                {% for problema in problemas_cronicos %}
+                <tr>
+                    <td style="width: 10%">{{ forloop.counter|add:1 }}</td>
+                    <td style="width: 50%">{{ problema.descripcion }}</td>
+                    <td style="width: 20%">{{ problema.fecha_inicio|date:"d/m/Y" }}</td>
+                    <td style="width: 20%">{{ problema.fecha_resolucion|date:"d/m/Y"|default_if_none:'' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+
+    <div class="page-break"></div>
+
+    <div class="header">
+        <table>
+            <tr>
+                <td style="width: 20%; border: none;">
+                    <img src="ruta_al_logo.png" class="logo">
+                </td>
+                <td style="width: 60%; border: none; text-align: center;">
+                    <h1>Universidad Privada María Serrana</h1>
+                </td>
+                <td style="width: 20%; border: none; text-align: right;">
+                    Prontuario: {{ historia.prontuario }}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <table>
+            <tr>
+                <th>TRANSITORIOS</th>
+                <th>FECHA</th>
+            </tr>
+            {% for problema in problemas_transitorios %}
+            <tr>
+                <td>{{ problema.descripcion }}</td>
+                <td>{{ problema.fecha|date:"d/m/Y" }}</td>
+                
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="section">
+        <strong>SOAP:</strong>
+        {% for nota in notas_soap %}
+        <p><strong>Fecha: {{ nota.fecha|date:"d/m/Y H:i" }}</strong></p>
+        <p>{{ nota.contenido }}</p>
+        <hr>
+        {% endfor %}
+        {% if notas_soap|length < 5 %}
+        {% for _ in "x"|rjust:"20" %}
+        <p>__________________________________________________________________________________________</p>
+        {% endfor %}
+        {% endif %}
+    </div>
+</body>
+</html>

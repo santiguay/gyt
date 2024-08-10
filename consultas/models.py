@@ -27,10 +27,10 @@ class SignosVitales(models.Model):
     temperatura = models.DecimalField(max_digits=4, decimal_places=1)
     frecuencia_respiratoria = models.IntegerField()
     saturacion_oxigeno = models.IntegerField()
-    peso = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
-    talla = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
+    peso = models.DecimalField(max_digits=5, decimal_places=2, default=0.0, blank=True)
+    talla = models.DecimalField(max_digits=3, decimal_places=2, default=0.0, blank=True) 
     imc = models.DecimalField(max_digits=4, decimal_places=2, default=0.0) 
-    perimetro_cefalico = models.DecimalField(max_digits=4, decimal_places=2, default=0.0)
+    perimetro_cefalico = models.DecimalField(max_digits=4, decimal_places=2, default=0.0, blank=True)
 
 class ProblemaCronico(models.Model):
     historia_clinica = models.ForeignKey(HistoriaClinica, on_delete=models.CASCADE)
