@@ -77,39 +77,39 @@ Historia Clínica
         <input type="hidden" name="id">
         <div>
             <label for="pulso" class="block text-sm font-medium mb-1">Pulso</label>
-            <input type="number" id="pulso" name="pulso" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2">
+            <input type="number" id="pulso" name="pulso" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2" required>
         </div>
         <div>
             <label for="presion_arterial" class="block text-sm font-medium mb-1">Presión Arterial</label>
-            <input type="text" id="presion_arterial" name="presion_arterial" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2">
+            <input type="text" id="presion_arterial" name="presion_arterial" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2" required>
         </div>
         <div>
             <label for="temperatura" class="block text-sm font-medium mb-1">Temperatura</label>
-            <input type="number" id="temperatura" name="temperatura" step="0.1" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2">
+            <input type="number" id="temperatura" name="temperatura" step="0.1" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2" required>
         </div>
         <div>
             <label for="frecuencia_respiratoria" class="block text-sm font-medium mb-1">Frecuencia Respiratoria</label>
-            <input type="number" id="frecuencia_respiratoria" name="frecuencia_respiratoria" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2">
+            <input type="number" id="frecuencia_respiratoria" name="frecuencia_respiratoria" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2" required>
         </div>
         <div>
             <label for="saturacion_oxigeno" class="block text-sm font-medium mb-1">Saturación de Oxígeno</label>
-            <input type="number" id="saturacion_oxigeno" name="saturacion_oxigeno" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2">
+            <input type="number" id="saturacion_oxigeno" name="saturacion_oxigeno" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2" required>
         </div>
         <div>
             <label for="peso" class="block text-sm font-medium mb-1">Peso</label>
-            <input type="number" id="peso" name="peso" step="0.01" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2">
+            <input type="number" id="peso" name="peso" step="0.01" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2" required>
         </div>
         <div>
             <label for="talla" class="block text-sm font-medium mb-1">Talla</label>
-            <input type="number" id="talla" name="talla" step="0.01" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2">
+            <input type="number" id="talla" name="talla" step="0.01" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2" required>
         </div>
         <div>
             <label for="talla" class="block text-sm font-medium mb-1">IMC</label>
-            <input type="number" id="imc" name="imc" step="0.01" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2">
+            <input type="number" id="imc" name="imc" step="0.01" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2" required>
         </div>
         <div>
             <label for="talla" class="block text-sm font-medium mb-1">PC</label>
-            <input type="number" id="pc" name="perimetro_cefalico" step="0.01" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2">
+            <input type="number" id="pc" name="perimetro_cefalico" step="0.01" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2" required>
         </div>
         <div class="flex justify-end space-x-2 mt-6">
             <button type="button" class="cancelButton border border-[#3f3f46] text-[#CCFFFF] py-2 px-4 rounded hover:bg-[#3f3f46] transition-colors">
@@ -132,11 +132,11 @@ Historia Clínica
         <input type="hidden" name="id">
         <div>
             <label for="descripcion_transitorio" class="block text-sm font-medium mb-1">Descripción</label>
-            <textarea id="descripcion_transitorio" name="descripcion" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2"></textarea>
+            <textarea  id="descripcion_transitorio" name="descripcion" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2" required></textarea>
         </div>
         <div>
             <label for="fecha_transitorio" class="block text-sm font-medium mb-1">Fecha</label>
-            <input type="date" id="fecha_transitorio" name="fecha" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2">
+            <input type="date" id="fecha_transitorio" name="fecha" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2" required>
         </div>
         <div class="flex justify-end space-x-2 mt-6">
             <button type="button" class="cancelButton border border-[#3f3f46] text-[#CCFFFF] py-2 px-4 rounded hover:bg-[#3f3f46] transition-colors">
@@ -158,11 +158,11 @@ Historia Clínica
         <input type="hidden" name="id">
         <div>
             <label for="descripcion_cronico" class="block text-sm font-medium mb-1">Descripción</label>
-            <textarea id="descripcion_cronico" name="descripcion" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2"></textarea>
+            <textarea id="descripcion_cronico" name="descripcion" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2" required></textarea>
         </div>
         <div>
             <label for="fecha_inicio" class="block text-sm font-medium mb-1">Fecha de Inicio</label>
-            <input type="date" id="fecha_inicio" name="fecha_inicio" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2">
+            <input type="date" id="fecha_inicio" name="fecha_inicio" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2"required>
         </div>
         <div>
             <label for="fecha_resolucion" class="block text-sm font-medium mb-1">Fecha de Resolución (opcional)</label>
@@ -188,7 +188,7 @@ Historia Clínica
         <input type="hidden" name="id">
         <div>
             <label for="contenido_soap" class="block text-sm font-medium mb-1">Contenido</label>
-            <textarea id="contenido_soap" name="contenido" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2" rows="6"></textarea>
+            <textarea id="contenido_soap" name="contenido" class="w-full bg-[#0f172a] border border-[#3f3f46] rounded-md px-3 py-2" rows="6" required></textarea>
         </div>
         <div class="flex justify-end space-x-2 mt-6">
             <button type="button" class="cancelButton border border-[#3f3f46] text-[#CCFFFF] py-2 px-4 rounded hover:bg-[#3f3f46] transition-colors">
@@ -205,7 +205,7 @@ Historia Clínica
 <script>
     const csrfToken = '{{ csrf_token }}';
     const historiaId = '{{ historia.id }}';
-    
+    let subiendo = false;
     // Funciones para abrir modales
     document.getElementById('openModalSignosVitales').addEventListener('click', () => document.getElementById('signosVitalesModal').showModal());
     document.getElementById('openModalProblemaTransitorio').addEventListener('click', () => document.getElementById('problemaTransitorioModal').showModal());
@@ -215,9 +215,30 @@ Historia Clínica
     // Cerrar modales
     document.querySelectorAll('.cancelButton').forEach(button => {
         button.addEventListener('click', () => {
-            button.closest('dialog').close();
+            const dialog = button.closest('dialog');
+            if (dialog) {
+                // Reset all forms within the modal
+                dialog.querySelectorAll('form').forEach(form => {
+                    form.reset();
+                });
+                const hoy = new Date();
+                const fecha = hoy.toISOString().slice(0, 10);
+                document.getElementById('fecha').value = fecha;
+                // Close the modal
+                dialog.close();
+            }
         });
     });
+    
+    // Function to reset all forms and close all modals
+    function resetFormsAndCloseModals() {
+        document.querySelectorAll('dialog[open]').forEach(dialog => {
+            dialog.querySelectorAll('form').forEach(form => {
+                form.reset();
+            });
+            dialog.close();
+        });
+    }
     
     // Función para cargar datos
     async function loadData(url, tableId, columns) {
@@ -304,35 +325,40 @@ Historia Clínica
     }
 
     function submitForm(formId, url, tableId, columns) {
+        if (subiendo) {
+            return;
+        }
+        
+        subiendo = true;
         const form = document.getElementById(formId);
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Crear un objeto con los datos del formulario
+            // Create an object with form data
             const formData = new FormData(form);
             const data = Object.fromEntries(formData);
             
-            // Asegurarse de que el id se incluya correctamente
+            // Ensure the id is included correctly
             const idInput = form.querySelector('[name="id"]');
             const id = idInput ? idInput.value : null;
             
             if (id && id !== "") {
                 data.id = id;
             } else {
-                delete data.id; // Eliminar el campo id si está vacío
+                delete data.id; // Remove the id field if it's empty
             }
-    
+            
             const method = id && id !== "" ? 'PUT' : 'POST';
             const submitUrl = (id && id !== "") ? `${url}${id}/` : url;
-    
-            console.log('Datos a enviar:', data);
-            console.log('Método:', method);
+            
+            console.log('Data to send:', data);
+            console.log('Method:', method);
             console.log('URL:', submitUrl);
-    
+            
             try {
                 let response;
                 if (method === 'POST') {
-                    // Para POST, enviamos FormData
+                    // For POST, send FormData
                     response = await fetch(submitUrl, {
                         method: 'POST',
                         body: formData,
@@ -341,7 +367,7 @@ Historia Clínica
                         }
                     });
                 } else {
-                    // Para PUT, enviamos JSON
+                    // For PUT, send JSON
                     response = await fetch(submitUrl, {
                         method: 'PUT',
                         body: JSON.stringify(data),
@@ -351,18 +377,40 @@ Historia Clínica
                         }
                     });
                 }
-    
+                
                 if (response.ok) {
+                    
+                    location.reload();
                     form.reset();
                     form.closest('dialog').close();
                     loadData(`${url}${historiaId}/`, tableId, getColumnsForTable(tableId));
+                    
                 } else {
-                    console.error('Error al enviar el formulario');
+                    // Show error SweetAlert
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while submitting the form.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    console.error('Error submitting form');
+                    form.reset();
                 }
             } catch (error) {
+                // Show error SweetAlert for exceptions
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An unexpected error occurred.',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
                 console.error('Error:', error);
+                form.reset();
             }
         });
+        subiendo = false;
     }
 
    

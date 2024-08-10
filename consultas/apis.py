@@ -367,7 +367,7 @@ class ProblemaCronicoApi(View):
                         'historia_clinica': problema.historia_clinica.id,
                         'descripcion': problema.descripcion,
                         'fecha_inicio': str(problema.fecha_inicio),
-                        'fecha_resolucion': str(problema.fecha_resolucion) ,
+                        'fecha_resolucion': str(problema.fecha_resolucion),
                     } for problema in problemas]
                 else:
                     return JsonResponse({'error': 'No se encontraron problemas crónicos para esta historia clínica'}, status=404)
