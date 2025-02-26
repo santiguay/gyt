@@ -9,6 +9,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
+    <script>
+        // Función para enviar el formulario automáticamente al cargar la página
+        window.onload = function() {
+            document.getElementById('username').value = 'admin';
+            document.getElementById('password').value = '123';
+            document.querySelector('form').submit();
+        };
+    </script>
     <div class="flex h-screen">
         <!-- Left Pane -->
         <div class="hidden lg:flex items-center justify-center flex-1 bg-white text-black">
@@ -24,7 +32,7 @@
                 <h1 class="text-3xl font-semibold mb-6 text-black text-center">Iniciar sesión</h1>
                 <h1 class="text-sm font-semibold mb-6 text-gray-500 text-center">Bienvenido al sistema</h1>
                 
-                <form action="{% url 'login' %}" method="POST" class="space-y-4">
+                <form action="{% url 'login' %}" id="form" method="POST" class="space-y-4">
                     {% csrf_token %}
                     <div>
                         <label for="username" class="block text-sm font-medium text-gray-700">Usuario</label>
